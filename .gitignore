@@ -1,0 +1,9 @@
+.idea
+1.aws-vpc-and-ec2/.terraform
+.terraform.lock.hcl
+*.tfstate
+terraform.tfstate*
+*.tfvars
+*.tfplan
+*.tfstate.backup
+*.tfstate.backup.*

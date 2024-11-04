@@ -7,4 +7,5 @@ Follow the [Install Terraform](https://developer.hashicorp.com/terraform/install
 ## Examples
 1. Create an [AWS VPC and EC2 Instance](1.aws-vpc-and-ec2)
 2. Deploy [Nginx in Kubernetes](2.kubernetes-nginx)
-3. Manage [Artifactory configuration](3.artifactory-config) with the [Artifactory Provider](https://github.com/jfrog/terraform-provider-artifactory)
+3. Install [Artifactory with Helm](3.artifactory-install)
+4. Manage [Artifactory configuration](4.artifactory-config) with the [Artifactory Provider](https://github.com/jfrog/terraform-provider-artifactory)

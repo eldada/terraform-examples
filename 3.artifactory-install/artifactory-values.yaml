@@ -1,0 +1,20 @@
+## Custom values for artifactory.
+artifactory:
+
+  ## IMPORTANT: Artifactory masterKey and joinKey are immutable and should not be changed after the first installation.
+  masterKey: AAFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFAA
+  joinKey: BBEEEEEEEEEEEEEEEEEEEEEEEEEEEECC
+
+## Nginx
+nginx:
+  disableProxyBuffering: true
+
+  ## Logs options
+  logs:
+    stderr: true
+    stdout: true
+    level: warn
+
+## Configuration values for the PostgreSQL dependency sub-chart
+postgresql:
+  postgresqlPassword: "Password321"

@@ -63,7 +63,7 @@ Change to the [3.artifactory](3.artifactory) directory
 cd 3.artifactory
 ```
 
-If not already install, you can install Artifactory (in Kubernetes) by running the following command
+If not already installed, you can easily install Artifactory in Kubernetes by running the following command
 ```shell
 helm upgrade --install artifactory jfrog/artifactory --set postgresql.postgresqlPassword="password1"
 ```

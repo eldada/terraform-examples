@@ -3,7 +3,9 @@ The [Artifactory Provider](https://github.com/jfrog/terraform-provider-artifacto
 
 The work here assumes you have an Artifactory instance running and accessible.
 
-If not already installed, you can easily install Artifactory in Kubernetes with [helm](https://helm.sh) by running the following command
+If not already installed, you can easily install Artifactory in Kubernetes with the [Artifactory Install Example](../3.artifactory-install) in this repository.
+
+You can also easily install Artifactory in Kubernetes directly with [helm](https://helm.sh) by running the following command
 ```shell
 helm upgrade --install artifactory jfrog/artifactory --set postgresql.postgresqlPassword="password1"
 ```

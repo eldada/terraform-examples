@@ -1,4 +1,4 @@
-### Artifactory Provider Example
+### Artifactory Configuration Example
 The [Artifactory Provider](https://github.com/jfrog/terraform-provider-artifactory) allows you to manage resources in Artifactory using Terraform.
 
 The work here assumes you have an Artifactory instance running and accessible.

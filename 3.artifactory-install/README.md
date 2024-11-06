@@ -5,17 +5,22 @@ The [main.tf](main.tf) file has the configuration that Terraform will use to ins
 
 The [artifactory-values.yaml](artifactory-values.yaml) file has the values that Helm will use to configure the Artifactory installation.
 
-Initialize the Terraform configuration by running the following command
+1. Initialize the Terraform configuration by running the following command
 ```shell
 terraform init
 ```
 
-Plan the Terraform configuration by running the following command
+2. Plan the Terraform configuration by running the following command
 ```shell
 terraform plan
 ```
 
-Apply the Terraform configuration by running the following command
+3. Apply the Terraform configuration by running the following command
 ```shell
 terraform apply
+```
+
+4. When you are done, you can destroy the resources by running the following command
+```shell
+terraform destroy
 ```

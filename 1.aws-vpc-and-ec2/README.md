@@ -1,20 +1,24 @@
 # AWS VPC and EC2 Instance Example
-The work here assumes you have an AWS account and have the AWS CLI installed and configured.
+The work here assumes you have an AWS account and have the AWS CLI installed and configured to this account.
 
 The [main.tf](main.tf) contains the configuration that Terraform will use to create the resources in the cloud.
 
-Initialize the Terraform configuration by running the following command
+1. Initialize the Terraform configuration by running the following command
 ```shell
 terraform init
 ```
 
-Plan the Terraform configuration by running the following command
+2. Plan the Terraform configuration by running the following command
 ```shell
 terraform plan
 ```
 
-Apply the Terraform configuration by running the following command
+3. Apply the Terraform configuration by running the following command
 ```shell
 terraform apply
 ```
 
+4. When you are done, you can destroy the resources by running the following command
+```shell
+terraform destroy
+```

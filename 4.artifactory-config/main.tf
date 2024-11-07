@@ -96,7 +96,7 @@ resource "artifactory_user" "developer1" {
     email    = "developer1@example.com"
     password = "Password1"
     admin    = false
-    groups   = ["devs"]
+    groups   = [artifactory_group.devs.name]
 }
 
 # Create the user developer2 and add them to the devs and ops group
@@ -105,5 +105,5 @@ resource "artifactory_user" "developer2" {
     email    = "developer2@example.com"
     password = "Password2"
     admin    = false
-    groups   = ["devs", "ops"]
+    groups   = [artifactory_group.devs.name, artifactory_group.ops.name]
 }

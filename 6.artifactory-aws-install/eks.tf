@@ -16,7 +16,6 @@ resource "aws_security_group_rule" "allow_management_from_my_ip" {
 
 module "eks" {
     source  = "terraform-aws-modules/eks/aws"
-    # version = "20.28.0"
 
     cluster_name    = local.cluster_name
     cluster_version = "1.31"
@@ -35,14 +34,26 @@ module "eks" {
     subnet_ids = module.vpc.private_subnets
 
     eks_managed_node_group_defaults = {
-        ami_type = "AL2_x86_64"
+        ami_type = "AL2_ARM_64"
+        block_device_mappings = {
+            xvda = {
+                device_name = "/dev/xvda"
+                ebs = {
+                    volume_size           = 100
+                    volume_type           = "gp3"
+                    iops                  = 3000
+                    throughput            = 200
+                    delete_on_termination = true
+                }
+            }
+        }
     }
 
     eks_managed_node_groups = {
         one = {
             name = "node-group-artifactory"
 
-            instance_types = ["t3.small"]
+            instance_types = ["m7g.large"]
 
             min_size     = 1
             max_size     = 3
@@ -52,7 +63,7 @@ module "eks" {
         two = {
             name = "node-group-nginx"
 
-            instance_types = ["t3.small"]
+            instance_types = ["c7g.large"]
 
             min_size     = 1
             max_size     = 2

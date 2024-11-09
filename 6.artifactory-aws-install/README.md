@@ -27,3 +27,9 @@ terraform apply
 ```shell
 terraform destroy
 ```
+
+## Accessing the EKS Cluster and Artifactory Installation
+To get the `kubectl` configuration for the EKS cluster, run the following command
+```shell
+aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name)
+```

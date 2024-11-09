@@ -1,46 +1,32 @@
-resource "aws_vpc" "main" {
-  cidr_block = var.vpc_cidr
-  enable_dns_support = true
-  enable_dns_hostnames = true
+# This file is used to create the AWS VPC
 
-  tags = {
-    Name = "artifactory-vpc"
-  }
+data "aws_availability_zones" "available" {
+    filter {
+        name   = "opt-in-status"
+        values = ["opt-in-not-required"]
+    }
 }
 
-resource "aws_subnet" "public" {
-  count = length(var.public_subnet_cidrs)
+module "vpc" {
+    source  = "terraform-aws-modules/vpc/aws"
 
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = element(var.public_subnet_cidrs, count.index)
-  availability_zone       = element(["eu-central-1a", "eu-central-1b"], count.index)
-  map_public_ip_on_launch = true
+    name = "jfrog-vpc"
 
-  tags = {
-    Name = "artifactory-public-subnet-${count.index}"
-  }
-}
+    cidr = "10.0.0.0/16"
+    azs  = slice(data.aws_availability_zones.available.names, 0, 3)
 
-resource "aws_subnet" "private" {
-  count = length(var.private_subnet_cidrs)
+    private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+    public_subnets  = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
 
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = element(var.private_subnet_cidrs, count.index)
-  availability_zone = element(["eu-central-1a", "eu-central-1b"], count.index)
+    enable_nat_gateway   = true
+    single_nat_gateway   = true
+    enable_dns_hostnames = true
 
-  tags = {
-    Name = "artifactory-private-subnet-${count.index}"
-  }
-}
+    public_subnet_tags = {
+        "kubernetes.io/role/elb" = 1
+    }
 
-output "vpc_id" {
-  value = aws_vpc.main.id
-}
-
-output "public_subnet_ids" {
-  value = aws_subnet.public[*].id
-}
-
-output "private_subnet_ids" {
-  value = aws_subnet.private[*].id
+    private_subnet_tags = {
+        "kubernetes.io/role/internal-elb" = 1
+    }
 }

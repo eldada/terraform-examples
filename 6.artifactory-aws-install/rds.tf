@@ -1,6 +1,8 @@
+# This file creates an RDS instance for the Artifactory database
+
 resource "aws_db_subnet_group" "artifactory_subnet_group" {
   name       = "artifactory-subnet-group"
-  subnet_ids = aws_subnet.private[*].id
+  subnet_ids = module.vpc.private_subnets
 
   tags = {
     Name = "artifactory-subnet-group"
@@ -11,7 +13,7 @@ resource "aws_db_instance" "artifactory_db" {
   identifier            = "artifactory-db"
   engine               = "postgres"
   engine_version       = "16.4" # Specify the desired version
-  instance_class       = "db.m7g.xlarge" # Change as needed based on expected load
+  instance_class       = "db.m7g.large" # Change as needed based on expected load
   allocated_storage     = 50 # Minimum is 20 GB for PostgreSQL
   storage_type         = "gp3"
   username             = var.db_username
@@ -27,13 +29,13 @@ resource "aws_db_instance" "artifactory_db" {
 }
 
 resource "aws_security_group" "rds_sg" {
-  vpc_id = aws_vpc.main.id
+  vpc_id = module.vpc.vpc_id
 
   ingress {
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = aws_subnet.private[*].cidr_block
+    cidr_blocks = var.private_subnet_cidrs
   }
 
   egress {

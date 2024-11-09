@@ -4,7 +4,7 @@ This example will install Artifactory in AWS using Terraform and Helm. The Artif
 2. S3 as the object storage
 3. EKS as the Kubernetes cluster running Artifactory
 
-The [main.tf](main.tf) file has the configuration that Terraform will use to setup the AWS services and install Artifactory with Helm.
+This time, the resources are split between individual files for easy and clear separation.
 
 The [artifactory-values.yaml](artifactory-values.yaml) file has the values that Helm will use to configure the Artifactory installation.
 

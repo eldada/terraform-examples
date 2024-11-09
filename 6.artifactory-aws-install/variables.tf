@@ -1,5 +1,12 @@
+# Setup the required variables
+
+# WARNING: CIDR "0.0.0.0/0" is full public access to the cluster, you should use a more restrictive CIDR
 variable "region" {
   default = "eu-central-1"
+}
+
+variable "cluster_public_access_cidrs" {
+  default = "0.0.0.0/0"
 }
 
 variable "vpc_cidr" {
@@ -25,4 +32,8 @@ variable "db_password" {
   type        = string
   sensitive   = true
   default     = "Password321"
+}
+
+variable "cluster_name" {
+  default = "jfrog-eks-cluster"
 }

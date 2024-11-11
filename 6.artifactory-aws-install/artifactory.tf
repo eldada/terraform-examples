@@ -1,0 +1,76 @@
+# Terraform script to deploy Artifactory on the AWS EKS created earlier
+
+data "aws_eks_cluster_auth" "jfrog_cluster" {
+  name = module.eks.cluster_name
+}
+
+# Configure the Kubernetes provider to use the EKS cluster
+provider "kubernetes" {
+  host                   = module.eks.cluster_endpoint
+  token                  = data.aws_eks_cluster_auth.jfrog_cluster.token
+  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+}
+
+resource "kubernetes_namespace" "jfrog_namespace" {
+  metadata {
+    annotations = {
+      name = var.namespace
+    }
+
+    labels = {
+      app = "jfrog"
+    }
+
+    name = var.namespace
+  }
+}
+
+resource "kubernetes_secret" "artifactory_db_credentials" {
+  metadata {
+    name      = "artifactory-db-credentials"
+    namespace = var.namespace
+  }
+
+  data = {
+    url      = "jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${aws_db_instance.artifactory_db.db_name}"
+    username = var.db_username
+    password = var.db_password
+  }
+
+  type = "Opaque"  # Opaque is a standard type for secrets
+}
+
+# Configure the Helm provider to use the EKS cluster
+provider "helm" {
+  kubernetes {
+    host                   = module.eks.cluster_endpoint
+    token                  = data.aws_eks_cluster_auth.jfrog_cluster.token
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+  }
+}
+
+# Create a Helm release for Artifactory
+resource "helm_release" "artifactory" {
+  name       = "artifactory"
+  chart      = "jfrog/artifactory"
+  namespace  = var.namespace
+
+  values = [
+    file("${path.module}/artifactory-values.yaml")
+  ]
+
+  set {
+    name  = "database.url"
+    value ="jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${aws_db_instance.artifactory_db.db_name}"
+  }
+
+  set {
+    name  = "database.user"
+    value = var.db_username
+  }
+
+  set {
+    name  = "database.password"
+    value = var.db_password
+  }
+}

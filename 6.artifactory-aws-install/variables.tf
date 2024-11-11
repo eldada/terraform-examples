@@ -37,3 +37,7 @@ variable "db_password" {
 variable "cluster_name" {
   default = "jfrog-eks-cluster"
 }
+
+variable "namespace" {
+  default = "jfrog"
+}

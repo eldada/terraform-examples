@@ -12,8 +12,3 @@ resource "aws_s3_bucket" "artifactory_binarystore" {
     prevent_destroy = false
   }
 }
-
-# resource "aws_s3_bucket_acl" "acl1" {
-#   bucket = aws_s3_bucket.artifactory_binarystore.bucket
-#   acl    = "private"
-# }

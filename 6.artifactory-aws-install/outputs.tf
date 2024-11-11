@@ -17,3 +17,10 @@ output "cluster_name" {
   description = "Kubernetes Cluster Name"
   value       = module.eks.cluster_name
 }
+
+# Output the command to configure kubectl config to the newly created EKS cluster
+output "x_cluster_kubectl_context" {
+  description = "Connect kubectl to Kubernetes Cluster"
+  value       = "aws eks --region ${var.region} update-kubeconfig --name ${module.eks.cluster_name}"
+}
+

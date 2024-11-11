@@ -1,0 +1,32 @@
+## Custom values for artifactory.
+artifactory:
+
+  ## IMPORTANT: Artifactory masterKey and joinKey are immutable and should not be changed after the first installation.
+  masterKey: AAFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFAA
+  joinKey: BBEEEEEEEEEEEEEEEEEEEEEEEEEEEECC
+
+  persistence:
+    enabled: false
+
+metadata:
+  enabled: false
+
+## Nginx
+nginx:
+  disableProxyBuffering: true
+
+  ## Logs options
+  logs:
+    stderr: true
+    stdout: true
+    level: warn
+
+## Use an external database
+postgresql:
+  enabled: false
+
+database:
+  type: postgresql
+  driver: org.postgresql.Driver
+
+databaseUpgradeReady: true

@@ -5,6 +5,7 @@ artifactory:
   masterKey: AAFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFAA
   joinKey: BBEEEEEEEEEEEEEEEEEEEEEEEEEEEECC
 
+  ## Artifactory to use S3 for filestore
   persistence:
     enabled: false
     type: s3-storage-v3-direct
@@ -14,6 +15,15 @@ artifactory:
       path: artifactory/filestore
       useInstanceCredentials: true
 
+  ## Require multiple Artifactory pods to run on separate nodes
+  podAntiAffinity:
+    type: "hard"
+
+  ## Run on nodes marked with the label "group=artifactory"
+  nodeSelector:
+    group: "artifactory"
+
+## Disable metadata until issue fixed
 metadata:
   enabled: false
 
@@ -27,7 +37,11 @@ nginx:
     stdout: true
     level: warn
 
-## Use an external database
+  ## Run on nodes marked with the label "group=artifactory"
+  nodeSelector:
+    group: "nginx"
+
+## Don't use the PostgreSQL chart
 postgresql:
   enabled: false
 

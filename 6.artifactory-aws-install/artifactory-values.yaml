@@ -7,6 +7,12 @@ artifactory:
 
   persistence:
     enabled: false
+    type: s3-storage-v3-direct
+    awsS3V3:
+      testConnection: false
+      endpoint: s3.amazonaws.com
+      path: artifactory/filestore
+      useInstanceCredentials: true
 
 metadata:
   enabled: false

@@ -58,6 +58,10 @@ module "eks" {
             min_size     = 1
             max_size     = 3
             desired_size = 1
+
+            additional_iam_policies = [
+                "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+            ]
         }
 
         two = {
@@ -72,7 +76,6 @@ module "eks" {
     }
 }
 
-
 # https://aws.amazon.com/blogs/containers/amazon-ebs-csi-driver-is-now-generally-available-in-amazon-eks-add-ons/
 data "aws_iam_policy" "ebs_csi_policy" {
     arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
@@ -80,7 +83,6 @@ data "aws_iam_policy" "ebs_csi_policy" {
 
 module "irsa-ebs-csi" {
     source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
-    # version = "5.39.0"
 
     create_role                   = true
     role_name                     = "AmazonEKSTFEBSCSIRole-${module.eks.cluster_name}"

@@ -53,15 +53,32 @@ provider "helm" {
 resource "helm_release" "artifactory" {
   name       = "artifactory"
   chart      = "jfrog/artifactory"
+  version    = "107.98.7"
   namespace  = var.namespace
+
+  depends_on = [
+    aws_db_instance.artifactory_db,
+    aws_s3_bucket.artifactory_binarystore,
+    kubernetes_secret.artifactory_db_credentials
+  ]
 
   values = [
     file("${path.module}/artifactory-values.yaml")
   ]
 
   set {
+    name  = "artifactory.persistence.awsS3V3.region"
+    value = var.region
+  }
+
+  set {
+    name  = "artifactory.persistence.awsS3V3.bucketName"
+    value = aws_s3_bucket.artifactory_binarystore.bucket
+  }
+
+  set {
     name  = "database.url"
-    value ="jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${aws_db_instance.artifactory_db.db_name}"
+    value = "jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${aws_db_instance.artifactory_db.db_name}"
   }
 
   set {
@@ -73,4 +90,7 @@ resource "helm_release" "artifactory" {
     name  = "database.password"
     value = var.db_password
   }
+
+  # Don't wait for the release to complete deployment
+  wait = false
 }

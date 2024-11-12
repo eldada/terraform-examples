@@ -3,6 +3,9 @@
 resource "aws_s3_bucket" "artifactory_binarystore" {
   bucket = "artifactory-${var.region}-eldada-example"
 
+  # WARNING: This will force the bucket to be destroyed even if it's not empty
+  force_destroy = true
+
   tags = {
     Name        = "artifactory-binarystore"
     Environment = "production"

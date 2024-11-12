@@ -8,7 +8,6 @@ resource "aws_s3_bucket" "artifactory_binarystore" {
 
   tags = {
     Name        = "artifactory-binarystore"
-    Environment = "production"
   }
 
   lifecycle {

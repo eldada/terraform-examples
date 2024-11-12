@@ -35,6 +35,9 @@ module "eks" {
 
     eks_managed_node_group_defaults = {
         ami_type = "AL2_ARM_64"
+        iam_role_additional_policies = {
+            AmazonS3FullAccess = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+        }
         block_device_mappings = {
             xvda = {
                 device_name = "/dev/xvda"
@@ -59,9 +62,9 @@ module "eks" {
             max_size     = 3
             desired_size = 1
 
-            additional_iam_policies = [
-                "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-            ]
+            labels = {
+                "group" = "artifactory"
+            }
         }
 
         two = {
@@ -72,7 +75,15 @@ module "eks" {
             min_size     = 1
             max_size     = 2
             desired_size = 1
+
+            labels = {
+                "group" = "nginx"
+            }
         }
+    }
+
+    tags = {
+        Name = var.cluster_name
     }
 }
 

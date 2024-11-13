@@ -25,21 +25,6 @@ resource "kubernetes_namespace" "jfrog_namespace" {
   }
 }
 
-resource "kubernetes_secret" "artifactory_db_credentials" {
-  metadata {
-    name      = "artifactory-db-credentials"
-    namespace = var.namespace
-  }
-
-  data = {
-    url      = "jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${aws_db_instance.artifactory_db.db_name}"
-    username = var.db_username
-    password = var.db_password
-  }
-
-  type = "Opaque"  # Opaque is a standard type for secrets
-}
-
 # Configure the Helm provider to use the EKS cluster
 provider "helm" {
   kubernetes {
@@ -53,13 +38,12 @@ provider "helm" {
 resource "helm_release" "artifactory" {
   name       = "artifactory"
   chart      = "jfrog/artifactory"
-  version    = "107.98.7"
+  version    = var.artifactory_chart_version
   namespace  = var.namespace
 
   depends_on = [
     aws_db_instance.artifactory_db,
     aws_s3_bucket.artifactory_binarystore,
-    kubernetes_secret.artifactory_db_credentials,
     helm_release.metrics_server
   ]
 
@@ -79,7 +63,7 @@ resource "helm_release" "artifactory" {
 
   set {
     name  = "database.url"
-    value = "jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${aws_db_instance.artifactory_db.db_name}"
+    value = "jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${var.db_name}"
   }
 
   set {

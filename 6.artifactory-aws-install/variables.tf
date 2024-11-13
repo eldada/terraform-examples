@@ -21,15 +21,18 @@ variable "private_subnet_cidrs" {
   default = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
 }
 
+variable "db_name" {
+  description = "The database name"
+  default     = "artifactory"
+}
+
 variable "db_username" {
   description = "The username for the database"
-  type        = string
   default     = "artifactory"
 }
 
 variable "db_password" {
   description = "The password for the database"
-  type        = string
   sensitive   = true
   default     = "Password321"
 }
@@ -40,4 +43,8 @@ variable "cluster_name" {
 
 variable "namespace" {
   default = "jfrog"
+}
+
+variable "artifactory_chart_version" {
+  default = "107.98.7"
 }

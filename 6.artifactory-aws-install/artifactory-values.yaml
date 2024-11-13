@@ -1,0 +1,52 @@
+## Custom values for artifactory.
+artifactory:
+
+  ## IMPORTANT: Artifactory masterKey and joinKey are immutable and should not be changed after the first installation.
+  masterKey: AAFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFAA
+  joinKey: BBEEEEEEEEEEEEEEEEEEEEEEEEEEEECC
+
+  ## Artifactory to use S3 for filestore
+  persistence:
+    enabled: false
+    type: s3-storage-v3-direct
+    awsS3V3:
+      testConnection: false
+      endpoint: s3.amazonaws.com
+      path: artifactory/filestore
+      useInstanceCredentials: true
+
+  ## Require multiple Artifactory pods to run on separate nodes
+  podAntiAffinity:
+    type: "hard"
+
+  ## Run on nodes marked with the label "group=artifactory"
+  nodeSelector:
+    group: "artifactory"
+
+## Disable metadata until issue fixed
+metadata:
+  enabled: false
+
+## Nginx
+nginx:
+  disableProxyBuffering: true
+
+  ## Logs options
+  logs:
+    stderr: true
+    stdout: true
+    level: warn
+
+  ## Run on nodes marked with the label "group=artifactory"
+  nodeSelector:
+    group: "nginx"
+
+## Don't use the PostgreSQL chart
+postgresql:
+  enabled: false
+
+database:
+  type: postgresql
+  driver: org.postgresql.Driver
+
+databaseUpgradeReady: true

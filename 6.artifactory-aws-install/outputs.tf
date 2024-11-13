@@ -24,3 +24,7 @@ output "x_cluster_kubectl_context" {
   value       = "aws eks --region ${var.region} update-kubeconfig --name ${module.eks.cluster_name}"
 }
 
+output "x_artifactory_url" {
+  # value = data.kubernetes_resources.nginx_service.objects[0].metadata
+  value = "https://${data.kubernetes_resources.nginx_service.objects[0].status.loadBalancer.ingress[0].hostname}"
+}

@@ -79,3 +79,14 @@ resource "helm_release" "artifactory" {
   # Don't wait for the release to complete deployment
   wait = false
 }
+
+data "kubernetes_resources" "nginx_service" {
+  api_version    = "v1"
+  kind           = "Service"
+  namespace      = var.namespace
+  label_selector = "component=nginx"
+
+  depends_on = [
+    helm_release.artifactory
+  ]
+}

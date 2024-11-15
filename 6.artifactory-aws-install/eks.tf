@@ -50,6 +50,9 @@ module "eks" {
                 }
             }
         }
+        tags = {
+            Group = var.common_tag
+        }
     }
 
     eks_managed_node_groups = {
@@ -83,7 +86,7 @@ module "eks" {
     }
 
     tags = {
-        Name = var.cluster_name
+        Group = var.common_tag
     }
 }
 
@@ -100,4 +103,8 @@ module "irsa-ebs-csi" {
     provider_url                  = module.eks.oidc_provider
     role_policy_arns              = [data.aws_iam_policy.ebs_csi_policy.arn]
     oidc_fully_qualified_subjects = ["system:serviceaccount:kube-system:ebs-csi-controller-sa"]
+
+    tags = {
+        Group = var.common_tag
+    }
 }

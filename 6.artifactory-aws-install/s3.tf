@@ -7,7 +7,7 @@ resource "aws_s3_bucket" "artifactory_binarystore" {
   force_destroy = true
 
   tags = {
-    Name        = "artifactory-binarystore"
+    Group = var.common_tag
   }
 
   lifecycle {

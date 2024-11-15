@@ -1,9 +1,9 @@
-output "cluster_endpoint" {
+output "eks_cluster_endpoint" {
   description = "Endpoint for EKS control plane"
   value       = module.eks.cluster_endpoint
 }
 
-output "cluster_security_group_id" {
+output "eks_cluster_security_group_id" {
   description = "Security group ids attached to the cluster control plane"
   value       = module.eks.cluster_security_group_id
 }
@@ -13,9 +13,14 @@ output "region" {
   value       = var.region
 }
 
-output "cluster_name" {
+output "eks_cluster_name" {
   description = "Kubernetes Cluster Name"
   value       = module.eks.cluster_name
+}
+
+output "resources_tag" {
+  description = "The common tag applied on all resources"
+  value       = "Group: ${var.common_tag}"
 }
 
 # Output the command to configure kubectl config to the newly created EKS cluster
@@ -25,6 +30,6 @@ output "x_cluster_kubectl_context" {
 }
 
 output "x_artifactory_url" {
-  # value = data.kubernetes_resources.nginx_service.objects[0].metadata
+  description = "The URL of the load balancer for Artifactory"
   value = "https://${data.kubernetes_resources.nginx_service.objects[0].status.loadBalancer.ingress[0].hostname}"
 }

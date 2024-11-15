@@ -48,3 +48,8 @@ variable "namespace" {
 variable "artifactory_chart_version" {
   default = "107.98.7"
 }
+
+variable "common_tag" {
+  description = "The 'Group' tag to apply to all resources"
+  default = "jfrog"
+}

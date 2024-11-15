@@ -5,7 +5,7 @@ resource "aws_db_subnet_group" "artifactory_subnet_group" {
   subnet_ids = module.vpc.private_subnets
 
   tags = {
-    Name = "artifactory-subnet-group"
+    Group = var.common_tag
   }
 }
 
@@ -28,7 +28,7 @@ resource "aws_db_instance" "artifactory_db" {
   skip_final_snapshot    = true
 
   tags = {
-    Name = "artifactory-db"
+    Group = var.common_tag
   }
 }
 
@@ -50,6 +50,6 @@ resource "aws_security_group" "rds_sg" {
   }
 
   tags = {
-    Name = "artifactory-rds-sg"
+    Group = var.common_tag
   }
 }

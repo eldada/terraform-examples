@@ -37,7 +37,7 @@ nginx:
     stdout: true
     level: warn
 
-  ## Run on nodes marked with the label "group=artifactory"
+  ## Run on nodes marked with the label "group=nginx"
   nodeSelector:
     group: "nginx"
 

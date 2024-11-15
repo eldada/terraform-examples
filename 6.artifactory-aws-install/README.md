@@ -1,5 +1,5 @@
 ### Artifactory Installation in AWS with Terraform
-This example will install Artifactory in AWS using Terraform and Helm. The Artifactory installation will use the AWS services
+This example will install Artifactory in AWS using Terraform. The Artifactory installation will use the AWS services
 1. RDS (PostgreSQL) as the database
 2. S3 as the object storage
 3. EKS as the Kubernetes cluster running Artifactory

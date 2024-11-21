@@ -75,8 +75,9 @@ xray:
       enabled: false
 
   ## Run on nodes marked with the label "group=xray"
-  nodeSelector:
-    group: "xray"
+  global:
+    nodeSelector:
+      group: "xray"
 
 # RabbitMQ is required for Xray
 rabbitmq:

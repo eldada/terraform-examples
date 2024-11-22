@@ -76,8 +76,8 @@ resource "helm_release" "artifactory" {
     value = var.db_password
   }
 
-  # Don't wait for the release to complete deployment
-  wait = false
+  # Wait for the release to complete deployment
+  wait = true
 }
 
 data "kubernetes_resources" "nginx_service" {

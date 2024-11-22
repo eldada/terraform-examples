@@ -34,11 +34,11 @@ provider "helm" {
   }
 }
 
-# Create a Helm release for Artifactory
-resource "helm_release" "artifactory" {
-  name       = "artifactory"
-  chart      = "jfrog/artifactory"
-  version    = var.artifactory_chart_version
+# Create a Helm release for the JFrog Platform
+resource "helm_release" "jfrog_platform" {
+  name       = var.namespace
+  chart      = "jfrog/jfrog-platform"
+  version    = var.jfrog_platform_chart_version
   namespace  = var.namespace
 
   depends_on = [
@@ -48,32 +48,47 @@ resource "helm_release" "artifactory" {
   ]
 
   values = [
-    file("${path.module}/artifactory-values.yaml")
+    file("${path.module}/jfrog-values.yaml")
   ]
 
   set {
-    name  = "artifactory.persistence.awsS3V3.region"
+    name  = "artifactory.artifactory.persistence.awsS3V3.region"
     value = var.region
   }
 
   set {
-    name  = "artifactory.persistence.awsS3V3.bucketName"
+    name  = "artifactory.artifactory.persistence.awsS3V3.bucketName"
     value = aws_s3_bucket.artifactory_binarystore.bucket
   }
 
   set {
-    name  = "database.url"
-    value = "jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${var.db_name}"
+    name  = "artifactory.database.url"
+    value = "jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${var.artifactory_db_name}"
   }
 
   set {
-    name  = "database.user"
-    value = var.db_username
+    name  = "artifactory.database.user"
+    value = var.artifactory_db_username
   }
 
   set {
-    name  = "database.password"
-    value = var.db_password
+    name  = "artifactory.database.password"
+    value = var.artifactory_db_password
+  }
+
+  set {
+    name  = "xray.database.url"
+    value = "postgres://${aws_db_instance.xray_db.endpoint}/${var.xray_db_name}?sslmode="
+  }
+
+  set {
+    name  = "xray.database.user"
+    value = var.xray_db_username
+  }
+
+  set {
+    name  = "xray.database.password"
+    value = var.xray_db_password
   }
 
   # Wait for the release to complete deployment
@@ -87,6 +102,6 @@ data "kubernetes_resources" "nginx_service" {
   label_selector = "component=nginx"
 
   depends_on = [
-    helm_release.artifactory
+    helm_release.jfrog_platform
   ]
 }

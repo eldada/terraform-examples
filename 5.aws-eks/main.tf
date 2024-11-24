@@ -1,4 +1,19 @@
-# This file is used to create an AWS EKS cluster and the managed node group(s)
+# This file is used to create an
+# AWS VPC and EKS cluster with a managed node group
+# It also creates a gp3 storage class and makes it the default
+
+terraform {
+    required_providers {
+        # Kubernetes provider
+        aws = {
+            source  = "hashicorp/aws"
+        }
+        # Kubernetes provider
+        kubernetes = {
+            source  = "hashicorp/kubernetes"
+        }
+    }
+}
 
 variable "region" {
     default = "eu-central-1"
@@ -6,7 +21,7 @@ variable "region" {
 
 # WARNING: CIDR "0.0.0.0/0" is full public access to the cluster, you should use a more restrictive CIDR
 variable "cluster_public_access_cidrs" {
-    default = "0.0.0.0/0"
+    default = ["0.0.0.0/0"]
 }
 
 variable "cluster_name" {
@@ -15,6 +30,16 @@ variable "cluster_name" {
 
 provider "aws" {
     region = var.region
+}
+
+data "aws_eks_cluster_auth" "jfrog_cluster" {
+    name = module.eks.cluster_name
+}
+
+provider "kubernetes" {
+    host                   = module.eks.cluster_endpoint
+    token                  = data.aws_eks_cluster_auth.jfrog_cluster.token
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
 }
 
 data "aws_availability_zones" "available" {
@@ -33,14 +58,13 @@ resource "aws_security_group_rule" "allow_management_from_my_ip" {
     from_port         = 0
     to_port           = 65535
     protocol          = "-1"
-    cidr_blocks       = [var.cluster_public_access_cidrs]
+    cidr_blocks       = var.cluster_public_access_cidrs
     security_group_id = module.eks.cluster_security_group_id
     description       = "Allow all traffic from my public IP for management"
 }
 
 module "vpc" {
     source  = "terraform-aws-modules/vpc/aws"
-    version = "5.15.0"
 
     name = "demo-vpc"
 
@@ -65,18 +89,18 @@ module "vpc" {
 
 module "eks" {
     source  = "terraform-aws-modules/eks/aws"
-    version = "20.28.0"
 
     cluster_name    = local.cluster_name
     cluster_version = "1.31"
 
     enable_cluster_creator_admin_permissions = true
     cluster_endpoint_public_access           = true
-    cluster_endpoint_public_access_cidrs     = [var.cluster_public_access_cidrs]
+    cluster_endpoint_public_access_cidrs     = var.cluster_public_access_cidrs
 
     cluster_addons = {
         aws-ebs-csi-driver = {
-            service_account_role_arn = module.irsa-ebs-csi.iam_role_arn
+            most_recent = true
+            service_account_role_arn = module.ebs_csi_irsa_role.iam_role_arn
         }
     }
 
@@ -85,6 +109,9 @@ module "eks" {
 
     eks_managed_node_group_defaults = {
         ami_type = "AL2_x86_64"
+        iam_role_additional_policies = {
+            AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+        }
     }
 
     eks_managed_node_groups = {
@@ -95,7 +122,7 @@ module "eks" {
 
             min_size     = 1
             max_size     = 3
-            desired_size = 2
+            desired_size = 1
         }
 
         # two = {
@@ -110,19 +137,33 @@ module "eks" {
     }
 }
 
-
-# https://aws.amazon.com/blogs/containers/amazon-ebs-csi-driver-is-now-generally-available-in-amazon-eks-add-ons/
-data "aws_iam_policy" "ebs_csi_policy" {
-    arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+# Create the gp3 storage class and make it the default
+resource "kubernetes_storage_class" "gp3_storage_class" {
+    metadata {
+        name = "gp3"
+        annotations = {
+            "storageclass.kubernetes.io/is-default-class" = "true"
+        }
+    }
+    storage_provisioner = "ebs.csi.aws.com"
+    volume_binding_mode = "WaitForFirstConsumer"
+    allow_volume_expansion = true
+    parameters = {
+        "fsType" = "ext4"
+        "type" = "gp3"
+    }
 }
 
-module "irsa-ebs-csi" {
-    source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
-    version = "5.39.0"
+module "ebs_csi_irsa_role" {
+    source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
 
-    create_role                   = true
-    role_name                     = "AmazonEKSTFEBSCSIRole-${module.eks.cluster_name}"
-    provider_url                  = module.eks.oidc_provider
-    role_policy_arns              = [data.aws_iam_policy.ebs_csi_policy.arn]
-    oidc_fully_qualified_subjects = ["system:serviceaccount:kube-system:ebs-csi-controller-sa"]
+    role_name             = "ebs-csi-${module.eks.cluster_name}"
+    attach_ebs_csi_policy = true
+
+    oidc_providers = {
+        ex = {
+            provider_arn               = module.eks.oidc_provider_arn
+            namespace_service_accounts = ["kube-system:ebs-csi-controller-sa"]
+        }
+    }
 }

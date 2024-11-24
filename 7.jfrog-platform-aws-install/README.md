@@ -1,5 +1,5 @@
 ### JFrog Platform Installation in AWS with Terraform
-This example will install Artifactory and Xray in AWS using Terraform. The Artifactory and Xray installations will use the AWS services
+This example will install Artifactory and Xray (with the [jfrog-platform helm chart](https://github.com/jfrog/charts/tree/master/stable/jfrog-platform)) in AWS using Terraform. The Artifactory and Xray installations will use the AWS services
 1. RDS (PostgreSQL) as the database for each application
 2. S3 as the Artifactory object storage
 3. EKS as the Kubernetes cluster running Artifactory and Xray with pre-defined node groups for the different services

@@ -44,6 +44,7 @@ resource "helm_release" "artifactory" {
   depends_on = [
     aws_db_instance.artifactory_db,
     aws_s3_bucket.artifactory_binarystore,
+    module.eks,
     helm_release.metrics_server
   ]
 

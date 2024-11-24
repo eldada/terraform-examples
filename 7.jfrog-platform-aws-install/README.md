@@ -8,8 +8,6 @@ The resources are split between individual files for easy and clear separation.
 
 The [jfrog-values.yaml](jfrog-values.yaml) file has the values that Helm will use to configure the JFrog Platform installation.
 
-*IMPORTANT:* The Xray RabbitMQ is not using a persistent volume due to the lack of EBS provisioner in the EKS cluster. This will be fixed in a later version.
-
 1. Initialize the Terraform configuration by running the following command
 ```shell
 terraform init

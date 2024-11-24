@@ -18,6 +18,7 @@ resource "aws_db_instance" "artifactory_db" {
   storage_type           = "gp3"       # Using gp3 for storage type
   allocated_storage      = 50          # Set desired storage size in GB
   max_allocated_storage  = 100         # Set maximum size for storage autoscaling (optional)
+  storage_encrypted      = true
 
   db_name                = var.artifactory_db_name
   username               = var.artifactory_db_username
@@ -41,6 +42,7 @@ resource "aws_db_instance" "xray_db" {
   storage_type           = "gp3"       # Using gp3 for storage type
   allocated_storage      = 50          # Set desired storage size in GB
   max_allocated_storage  = 100         # Set maximum size for storage autoscaling (optional)
+  storage_encrypted      = true
 
   db_name                = var.xray_db_name
   username               = var.xray_db_username

@@ -44,6 +44,7 @@ resource "helm_release" "jfrog_platform" {
   depends_on = [
     aws_db_instance.artifactory_db,
     aws_s3_bucket.artifactory_binarystore,
+    module.eks,
     helm_release.metrics_server
   ]
 
@@ -93,6 +94,9 @@ resource "helm_release" "jfrog_platform" {
 
   # Wait for the release to complete deployment
   wait = true
+
+  # Increase the timeout to 10 minutes for the JFrog Platform to deploy
+  timeout = 600
 }
 
 data "kubernetes_resources" "nginx_service" {

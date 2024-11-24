@@ -82,8 +82,6 @@ xray:
 # RabbitMQ is required for Xray
 rabbitmq:
   enabled: true
-  persistence:
-    enabled: false # Disable persistence for RabbitMQ until issue with EBS provisioning is fixed
 
   # Run on nodes marked with the label "group=xray"
   nodeSelector:

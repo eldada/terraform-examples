@@ -6,7 +6,7 @@ variable "region" {
 
 # WARNING: CIDR "0.0.0.0/0" is full public access to the cluster. You should use a more restrictive CIDR
 variable "cluster_public_access_cidrs" {
-  default = "0.0.0.0/0"
+  default = ["0.0.0.0/0"]
 }
 
 variable "vpc_cidr" {

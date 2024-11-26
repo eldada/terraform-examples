@@ -5,6 +5,14 @@ artifactory:
   masterKey: AAFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFAA
   joinKey: BBEEEEEEEEEEEEEEEEEEEEEEEEEEEECC
 
+  ## To provide support for HA
+  extraEnvironmentVariables:
+    - name : JF_SHARED_NODE_HAENABLED
+      value: "true"
+
+  # Fix a know issue. Will be fixed with 7.102.X
+  preStartCommand: "sed -i -e 's, -Xms[^ ]\\+,,g' -e 's, -Xmx[^ ]\\+,,g' /opt/jfrog/artifactory/app/bin/artifactory.default || exit 1"
+
   ## Artifactory to use S3 for filestore
   persistence:
     enabled: false

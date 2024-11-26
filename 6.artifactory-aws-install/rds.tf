@@ -10,14 +10,29 @@ resource "aws_db_subnet_group" "artifactory_subnet_group" {
 }
 
 resource "aws_db_instance" "artifactory_db" {
-  identifier             = "artifactory-db"
-  engine                 = "postgres"
-  engine_version         = "16.4" # Specify the desired version
-  instance_class         = "db.m7g.large" # Change as needed based on expected load
+  identifier       = "artifactory-db"
+  engine           = "postgres"
+  engine_version   = "16.4" # Specify the desired version
 
-  storage_type           = "gp3"        # Using gp3 for storage type
-  allocated_storage      = 50           # Set desired storage size in GB
-  max_allocated_storage  = 100          # Set maximum size for storage autoscaling (optional)
+  # Set the instance class based on the sizing variable
+  instance_class = (
+      var.sizing == "medium"  ? "db.m7g.4xlarge" :
+      var.sizing == "large"   ? "db.m7g.8xlarge" :
+      var.sizing == "xlarge"  ? "db.m7g.12xlarge" :
+      var.sizing == "2xlarge" ? "db.m7g.16xlarge" :
+      "db.m7g.2xlarge"
+  )
+
+  storage_type      = "gp3"        # Using gp3 for storage type
+  allocated_storage = (
+      var.sizing == "medium"  ? "250" :
+      var.sizing == "large"   ? "500" :
+      var.sizing == "xlarge"  ? "1000" :
+      var.sizing == "2xlarge" ? "1500" :
+      "50"
+  )
+
+  max_allocated_storage  = 2000          # Set maximum size for storage autoscaling (optional)
   storage_encrypted      = true
 
   db_name                = var.db_name

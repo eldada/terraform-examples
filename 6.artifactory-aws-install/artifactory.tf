@@ -40,6 +40,12 @@ resource "helm_release" "artifactory" {
   chart      = "jfrog/artifactory"
   version    = var.artifactory_chart_version
   namespace  = var.namespace
+  create_namespace = true
+
+  max_history = 3
+
+  lint = true
+  # upgrade_install = true
 
   depends_on = [
     aws_db_instance.artifactory_db,
@@ -49,7 +55,8 @@ resource "helm_release" "artifactory" {
   ]
 
   values = [
-    file("${path.module}/artifactory-values.yaml")
+    file("${path.module}/artifactory-values.yaml"),
+    file("${path.module}/artifactory/sizing/artifactory-${var.sizing}.yaml")
   ]
 
   set {

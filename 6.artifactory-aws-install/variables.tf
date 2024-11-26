@@ -53,3 +53,14 @@ variable "common_tag" {
   description = "The 'Group' tag to apply to all resources"
   default = "jfrog"
 }
+
+variable "sizing" {
+  type        = string
+  description = "The sizing templates for the infrastructure and Artifactory"
+  default     = "small"
+
+  validation {
+    condition     = contains(["small", "medium", "large", "xlarge", "2xlarge"], var.sizing)
+    error_message = "Invlid sizing set. Supported sizings are: 'small', 'medium', 'large', 'xlarge' or '2xlarge'"
+  }
+}

@@ -61,11 +61,16 @@ module "eks" {
         artifactory = {
             name = "artifactory-node-group"
 
-            instance_types = ["m7g.large"]
+            instance_types = [(
+                var.sizing == "large"   ? "m7g.4xlarge" :
+                var.sizing == "xlarge"  ? "m7g.4xlarge" :
+                var.sizing == "2xlarge" ? "m7g.4xlarge" :
+                "m7g.2xlarge"
+            )]
 
             min_size     = 1
             max_size     = 3
-            desired_size = 1
+            desired_size = 2
 
             labels = {
                 "group" = "artifactory"
@@ -75,11 +80,15 @@ module "eks" {
         nginx = {
             name = "nginx-node-group"
 
-            instance_types = ["c7g.large"]
+            instance_types = [(
+                var.sizing == "xlarge"  ? "c7g.2xlarge" :
+                var.sizing == "2xlarge" ? "c7g.2xlarge" :
+                "c7g.xlarge"
+            )]
 
             min_size     = 1
             max_size     = 2
-            desired_size = 1
+            desired_size = 2
 
             labels = {
                 "group" = "nginx"

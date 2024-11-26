@@ -5,6 +5,9 @@ artifactory:
   masterKey: AAFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFAA
   joinKey: BBEEEEEEEEEEEEEEEEEEEEEEEEEEEECC
 
+  # Fix a know issue. Will be fixed with 7.102.X
+  preStartCommand: "sed -i -e 's, -Xms[^ ]\\+,,g' -e 's, -Xmx[^ ]\\+,,g' /opt/jfrog/artifactory/app/bin/artifactory.default || exit 1"
+
 ## Nginx
 nginx:
   disableProxyBuffering: true
@@ -18,3 +21,5 @@ nginx:
 ## Configuration values for the PostgreSQL dependency sub-chart
 postgresql:
   postgresqlPassword: "Password321"
+
+databaseUpgradeReady: true

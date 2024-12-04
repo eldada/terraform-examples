@@ -19,7 +19,7 @@ The [artifactory-license-template.yaml](artifactory-license-template.yaml) file 
 cp artifactory-license-template.yaml artifactory-license.yaml
 ```
 
-If you plan on skipping the license key(s) for now, you can leave the `artifactory-license.yaml` file empty.
+If you plan on skipping the license key(s) for now, you can leave the `artifactory-license.yaml` file empty. Terraform will create an empty one for you if you don't create it.
 
 ## Artifactory Sizing
 Artifactory has pre-defined sizing templates that you can use to deploy Artifactory. The supported sizing templates in this project are `small`, `medium`, `large`, `xlarge`, and `2xlarge`.

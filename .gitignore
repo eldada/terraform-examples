@@ -7,3 +7,6 @@ terraform.tfstate*
 *.tfplan
 *.tfstate.backup
 *.tfstate.backup.*
+artifactory-license.yaml
+artifactory-db.yaml
+artifactory-custom.yaml

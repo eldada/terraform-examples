@@ -61,11 +61,22 @@ module "eks" {
         artifactory = {
             name = "artifactory-node-group"
 
-            instance_types = ["m7g.large"]
+            instance_types = [(
+                var.sizing == "large"   ? var.artifactory_node_size_large :
+                var.sizing == "xlarge"  ? var.artifactory_node_size_large :
+                var.sizing == "2xlarge" ? var.artifactory_node_size_large :
+                var.artifactory_node_size_default
+            )]
 
             min_size     = 1
-            max_size     = 3
-            desired_size = 1
+            max_size     = 10
+            desired_size = (
+                var.sizing == "medium"  ? 2 :
+                var.sizing == "large"   ? 3 :
+                var.sizing == "xlarge"  ? 4 :
+                var.sizing == "2xlarge" ? 6 :
+                1
+            )
 
             labels = {
                 "group" = "artifactory"
@@ -75,14 +86,39 @@ module "eks" {
         nginx = {
             name = "nginx-node-group"
 
-            instance_types = ["c7g.large"]
+            instance_types = [(
+                var.sizing == "xlarge"  ? var.nginx_node_size_large :
+                var.sizing == "2xlarge" ? var.nginx_node_size_large :
+                var.nginx_node_size_default
+            )]
 
             min_size     = 1
-            max_size     = 2
-            desired_size = 1
+            max_size     = 10
+            desired_size = (
+                var.sizing == "medium"  ? 2 :
+                var.sizing == "large"   ? 2 :
+                var.sizing == "xlarge"  ? 2 :
+                var.sizing == "2xlarge" ? 3 :
+                1
+            )
 
             labels = {
                 "group" = "nginx"
+            }
+        }
+
+        ## Create an extra node group for testing
+        extra = {
+            name = "extra-node-group"
+
+            instance_types = [var.nginx_node_size_default]
+
+            min_size     = 1
+            max_size     = 3
+            desired_size = 3
+
+            labels = {
+                "group" = "extra"
             }
         }
     }

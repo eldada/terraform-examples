@@ -1,10 +1,20 @@
-### Artifactory Installation with Helm Example
+# Artifactory Installation with Helm Example
 Using the [Terraform Helm Provider](https://developer.hashicorp.com/terraform/tutorials/kubernetes/helm-provider) to install Artifactory in Kubernetes.
 
 The [main.tf](main.tf) file has the configuration that Terraform will use to install Artifactory with Helm.
 
+## Prepare the Artifactory Configurations
+
 The [artifactory-values.yaml](artifactory-values.yaml) file has the values that Helm will use to configure the Artifactory installation.
 
+The [artifactory-license-template.yaml](artifactory-license-template.yaml) file has the license key(s) template that you will need to copy to a `artifactory-license.yaml` file.
+```shell
+cp artifactory-license-template.yaml artifactory-license.yaml
+```
+
+If you plan on skipping the license key(s) for now, you can leave the `artifactory-license.yaml` file empty. Terraform will create an empty one for you if you don't create it.
+
+## Terraform
 1. Initialize the Terraform configuration by running the following command
 ```shell
 terraform init

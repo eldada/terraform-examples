@@ -11,41 +11,36 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
 }
 
-resource "kubernetes_namespace" "jfrog_namespace" {
-  metadata {
-    annotations = {
-      name = var.namespace
-    }
-
-    labels = {
-      app = "jfrog"
-    }
-
-    name = var.namespace
+# Fetch the Artifactory Helm chart and untar it to the current directory so helm install can use the sizing files
+resource "null_resource" "shell" {
+  provisioner "local-exec" {
+    command = "helm fetch artifactory --version ${var.artifactory_chart_version} --repo https://charts.jfrog.io --untar"
   }
 }
 
-# Configure the Helm provider to use the EKS cluster
-provider "helm" {
-  kubernetes {
-    host                   = module.eks.cluster_endpoint
-    token                  = data.aws_eks_cluster_auth.jfrog_cluster.token
-    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-  }
+# Create an empty artifactory-license.yaml if missing
+resource "local_file" "empty_license" {
+  count = fileexists("${path.module}/artifactory-license.yaml") ? 0 : 1
+  filename = "${path.module}/artifactory-license.yaml"
+  content = "## Empty file to satisfy Helm requirements"
 }
 
-# Create a Helm release for Artifactory
-resource "helm_release" "artifactory" {
-  name       = "artifactory"
-  chart      = "jfrog/artifactory"
-  version    = var.artifactory_chart_version
-  namespace  = var.namespace
-  create_namespace = true
+# Write the artifactory-custom.yaml file with the variables needed
+resource "local_file" "artifactory_values" {
+  content  = <<-EOT
+  artifactory:
+    persistence:
+      awsS3V3:
+        region: "${var.region}"
+        bucketName: "artifactory-${var.region}-${var.s3_bucket_name_suffix}"
 
-  max_history = 3
-
-  lint = true
-  # upgrade_install = true
+  database:
+    # Get the DB endpoint from the RDS console
+    url: "jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${var.db_name}"
+    user: "${var.db_username}"
+    password: "${var.db_password}"
+  EOT
+  filename = "${path.module}/artifactory-custom.yaml"
 
   depends_on = [
     aws_db_instance.artifactory_db,
@@ -53,48 +48,90 @@ resource "helm_release" "artifactory" {
     module.eks,
     helm_release.metrics_server
   ]
-
-  values = [
-    file("${path.module}/artifactory-values.yaml"),
-    file("${path.module}/artifactory/sizing/artifactory-${var.sizing}.yaml")
-  ]
-
-  set {
-    name  = "artifactory.persistence.awsS3V3.region"
-    value = var.region
-  }
-
-  set {
-    name  = "artifactory.persistence.awsS3V3.bucketName"
-    value = aws_s3_bucket.artifactory_binarystore.bucket
-  }
-
-  set {
-    name  = "database.url"
-    value = "jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${var.db_name}"
-  }
-
-  set {
-    name  = "database.user"
-    value = var.db_username
-  }
-
-  set {
-    name  = "database.password"
-    value = var.db_password
-  }
-
-  # Wait for the release to complete deployment
-  wait = true
 }
 
-data "kubernetes_resources" "nginx_service" {
-  api_version    = "v1"
-  kind           = "Service"
-  namespace      = var.namespace
-  label_selector = "component=nginx"
+## Create a Helm release for Artifactory
+## Leaving this as an example of how to deploy Artifactory with Helm using multiple values files
 
-  depends_on = [
-    helm_release.artifactory
-  ]
-}
+## Create a namespace for the JFrog resources
+# resource "kubernetes_namespace" "jfrog_namespace" {
+#   metadata {
+#     annotations = {
+#       name = var.namespace
+#     }
+#
+#     labels = {
+#       app = "jfrog"
+#     }
+#
+#     name = var.namespace
+#   }
+# }
+
+## Configure the Helm provider to use the EKS cluster
+# provider "helm" {
+#   kubernetes {
+#     host                   = module.eks.cluster_endpoint
+#     token                  = data.aws_eks_cluster_auth.jfrog_cluster.token
+#     cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+#   }
+# }
+#
+# # Create a Helm release for Artifactory
+# resource "helm_release" "artifactory" {
+#   name       = "artifactory"
+#   chart      = "jfrog/artifactory"
+#   version    = var.artifactory_chart_version
+#   namespace  = var.namespace
+#   create_namespace = true
+#
+#   max_history = 3
+#
+#   lint = true
+#   # upgrade_install = true
+#
+#   depends_on = [
+#     aws_db_instance.artifactory_db,
+#     aws_s3_bucket.artifactory_binarystore,
+#     module.eks,
+#     helm_release.metrics_server
+#   ]
+#
+#   values = [
+#     file("${path.module}/artifactory-values.yaml"),
+#     file("${path.module}/artifactory-license.yaml"),
+#     file("${path.module}/artifactory/sizing/artifactory-${var.sizing}.yaml")
+#   ]
+#
+#   set {
+#     name  = "artifactory.persistence.awsS3V3.region"
+#     value = var.region
+#   }
+#
+#   set {
+#     name  = "artifactory.persistence.awsS3V3.bucketName"
+#     value = aws_s3_bucket.artifactory_binarystore.bucket
+#   }
+#
+#   set {
+#     name  = "database.url"
+#     value = "jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${var.db_name}"
+#   }
+#
+#   set {
+#     name  = "database.user"
+#     value = var.db_username
+#   }
+#
+#   set {
+#     name  = "database.password"
+#     value = var.db_password
+#   }
+#
+#   # Wait for the release to complete deployment
+#   wait = true
+#
+#   # Increase the timeout to 10 minutes for Artifactory to deploy
+#   timeout = 600
+# }
+#

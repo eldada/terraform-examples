@@ -14,6 +14,9 @@ terraform {
   # }
 
   required_providers {
+    local = {
+      source  = "hashicorp/local"
+    }
     # Kubernetes provider
     aws = {
       source  = "hashicorp/aws"

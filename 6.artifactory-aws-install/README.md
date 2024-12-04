@@ -1,18 +1,30 @@
 # Artifactory Installation in AWS with Terraform
-This example will install Artifactory in AWS using Terraform. The Artifactory installation will use the AWS services
-1. RDS (PostgreSQL) as the database
+This example will prepare the AWS infrastructure and services required to run [JFrog Artifactory](https://jfrog.com/artifactory) using Terraform:
+1. The AWS VPC
+2. RDS (PostgreSQL) as the database
 2. S3 as the object storage
 3. EKS as the Kubernetes cluster running Artifactory
 
 The resources are split between individual files for easy and clear separation.
 
+After all the resources are created, you can install Artifactory using the [official Artifactory Helm Chart](https://github.com/jfrog/charts/tree/master/stable/artifactory).
+
+The Terraform configuration will output the Artifactory install command.
+
+## Prepare the Artifactory Configurations
 The [artifactory-values.yaml](artifactory-values.yaml) file has the values that Helm will use to configure the Artifactory installation.
 
-## Sizing
-You will need to get the Artifactory sizing files from the helm chart. To do this, you should run the following command
+The [artifactory-license-template.yaml](artifactory-license-template.yaml) file has the license key(s) template that you will need to copy to a `artifactory-license.yaml` file.
 ```shell
-helm fetch jfrog/artifactory --untar
+cp artifactory-license-template.yaml artifactory-license.yaml
 ```
+
+If you plan on skipping the license key(s) for now, you can leave the `artifactory-license.yaml` file empty.
+
+## Artifactory Sizing
+Artifactory has pre-defined sizing templates that you can use to deploy Artifactory. The supported sizing templates in this project are `small`, `medium`, `large`, `xlarge`, and `2xlarge`.
+
+The sizing templates will be pulled from the [official Artifactory Helm Chart](https://github.com/jfrog/charts/tree/master/stable/artifactory) during the execution of the Terraform configuration.
 
 ## Terraform
 

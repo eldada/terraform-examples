@@ -24,7 +24,8 @@ output "_05_setting_cluster_kubectl_context" {
   value       = "aws eks --region ${var.region} update-kubeconfig --name ${module.eks.cluster_name}"
 }
 
-output "_06_artifactory_url" {
-  description = "The URL of the load balancer for Artifactory"
-  value = "https://${data.kubernetes_resources.nginx_service.objects[0].status.loadBalancer.ingress[0].hostname}"
+# Output the command to install Artifactory with Helm
+output "_06_artifactory_install_command" {
+  description = "The Helm command to install Artifactory (after setting up kubectl context)"
+  value = "helm upgrade --install artifactory jfrog/artifactory --version ${var.artifactory_chart_version} --namespace ${var.namespace} --create-namespace -f ${path.module}/artifactory-values.yaml -f ${path.module}/artifactory-license.yaml -f ${path.module}/artifactory/sizing/artifactory-${var.sizing}.yaml -f ${path.module}/artifactory-custom.yaml --timeout 600s"
 }

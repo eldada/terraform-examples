@@ -59,12 +59,12 @@ Terraform will create the needed configuration files to be used for the `helm in
 This command will auto generate and be writen to the console when you run the `Terraform apply` command.
 ```shell
 helm upgrade --install jfrog jfrog/jfrog-platform \
-  --version 10.20.1 \
-  --namespace jfrog --create-namespace \
+  --version <version> \
+  --namespace <namesapce>> --create-namespace \
   -f ./jfrog-values.yaml \
   -f ./artifactory-license.yaml \
-  -f ./jfrog-artifactory-small-adjusted.yaml \
-  -f ./jfrog-xray-small-adjusted.yaml \
+  -f ./jfrog-artifactory-<sizing>-adjusted.yaml \
+  -f ./jfrog-xray--<sizing>-adjusted.yaml \
   -f ./jfrog-custom.yaml \
   --timeout 600s
 ```

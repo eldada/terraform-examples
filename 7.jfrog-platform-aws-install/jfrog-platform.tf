@@ -16,12 +16,18 @@ provider "kubernetes" {
 # Fetch the Artifactory Helm chart and untar it to the current directory so helm install can use the sizing files
 resource "null_resource" "fetch_artifactory_chart" {
   provisioner "local-exec" {
+    command = "rm -rf artifactory-*.tgz"
+  }
+  provisioner "local-exec" {
     command = "helm fetch artifactory --version ${var.artifactory_chart_version} --repo https://charts.jfrog.io --untar"
   }
 }
 
 # Fetch the Xray Helm chart and untar it to the current directory so helm install can use the sizing files
 resource "null_resource" "fetch_xray_chart" {
+  provisioner "local-exec" {
+    command = "rm -rf xray-*.tgz"
+  }
   provisioner "local-exec" {
     command = "helm fetch xray --version ${var.xray_chart_version} --repo https://charts.jfrog.io --untar"
   }

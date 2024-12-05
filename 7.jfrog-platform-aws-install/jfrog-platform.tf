@@ -11,101 +11,203 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
 }
 
-resource "kubernetes_namespace" "jfrog_namespace" {
-  metadata {
-    annotations = {
-      name = var.namespace
-    }
+## Until sizing specs are part of the jfrog-platform chart, we pull them from the individual charts
 
-    labels = {
-      app = "jfrog"
-    }
-
-    name = var.namespace
+# Fetch the Artifactory Helm chart and untar it to the current directory so helm install can use the sizing files
+resource "null_resource" "fetch_artifactory_chart" {
+  provisioner "local-exec" {
+    command = "helm fetch artifactory --version ${var.artifactory_chart_version} --repo https://charts.jfrog.io --untar"
   }
 }
 
-# Configure the Helm provider to use the EKS cluster
-provider "helm" {
-  kubernetes {
-    host                   = module.eks.cluster_endpoint
-    token                  = data.aws_eks_cluster_auth.jfrog_cluster.token
-    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+# Fetch the Xray Helm chart and untar it to the current directory so helm install can use the sizing files
+resource "null_resource" "fetch_xray_chart" {
+  provisioner "local-exec" {
+    command = "helm fetch xray --version ${var.xray_chart_version} --repo https://charts.jfrog.io --untar"
   }
 }
 
-# Create a Helm release for the JFrog Platform
-resource "helm_release" "jfrog_platform" {
-  name       = var.namespace
-  chart      = "jfrog/jfrog-platform"
-  version    = var.jfrog_platform_chart_version
-  namespace  = var.namespace
+################### Artifactory sizing
+## Prepare the final values files for the JFrog Platform sizing
+data "local_file" "artifactory_sizing" {
+  filename = "${path.module}/artifactory/sizing/artifactory-${var.sizing}.yaml"
+  depends_on = [null_resource.fetch_artifactory_chart]
+}
+
+# Inject two spaces before all lines and load into a variable
+locals {
+  indented_artifactory_sizing = join("\n", [for line in split("\n", data.local_file.artifactory_sizing.content) : "  ${line}"])
+}
+
+# Create the new artifactory sizing YAML string
+locals {
+  new_artifactory_sizing = <<-EOT
+  artifactory:
+  ${local.indented_artifactory_sizing}
+  EOT
+}
+
+# Write the new Artifactory YAML to a file
+resource "local_file" "new_artifactory_sizing" {
+  filename = "${path.module}/jfrog-artifactory-${var.sizing}-adjusted.yaml"
+  content  = trimspace(local.new_artifactory_sizing)
+}
+
+################### Xray sizing
+## Prepare the final values files for the JFrog Platform sizing
+data "local_file" "xray_sizing" {
+  filename = "${path.module}/xray/sizing/xray-${var.sizing}.yaml"
+  depends_on = [null_resource.fetch_xray_chart]
+}
+
+# Inject two spaces before all lines and load into a variable
+locals {
+  indented_xray_sizing = join("\n", [for line in split("\n", data.local_file.xray_sizing.content) : "  ${line}"])
+}
+
+# Create the new Xray sizing YAML string
+locals {
+  new_xray_sizing = <<-EOT
+  xray:
+  ${local.indented_xray_sizing}
+  EOT
+}
+
+# Write the new Xray YAML to a file
+resource "local_file" "new_xray_sizing" {
+  filename = "${path.module}/jfrog-xray-${var.sizing}-adjusted.yaml"
+  content  = trimspace(local.new_xray_sizing)
+}
+
+# Create an empty artifactory-license.yaml if missing
+resource "local_file" "empty_license" {
+  count = fileexists("${path.module}/artifactory-license.yaml") ? 0 : 1
+  filename = "${path.module}/artifactory-license.yaml"
+  content = "## Empty file to satisfy Helm requirements"
+}
+
+# Write the artifactory-custom.yaml file with the variables needed
+resource "local_file" "jfrog_platform_values" {
+  content  = <<-EOT
+  artifactory:
+    artifactory:
+      persistence:
+        awsS3V3:
+          region: "${var.region}"
+          bucketName: "artifactory-${var.region}-${var.s3_bucket_name_suffix}"
+
+    database:
+      url: "jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${var.artifactory_db_name}"
+      user: "${var.artifactory_db_username}"
+      password: "${var.artifactory_db_password}"
+
+  xray:
+    database:
+      url: "postgres://${aws_db_instance.xray_db.endpoint}/${var.xray_db_name}?sslmode="
+      user: "${var.xray_db_username}"
+      password: "${var.xray_db_password}"
+
+  EOT
+  filename = "${path.module}/jfrog-custom.yaml"
 
   depends_on = [
     aws_db_instance.artifactory_db,
+    aws_db_instance.xray_db,
     aws_s3_bucket.artifactory_binarystore,
     module.eks,
     helm_release.metrics_server
   ]
-
-  values = [
-    file("${path.module}/jfrog-values.yaml")
-  ]
-
-  set {
-    name  = "artifactory.artifactory.persistence.awsS3V3.region"
-    value = var.region
-  }
-
-  set {
-    name  = "artifactory.artifactory.persistence.awsS3V3.bucketName"
-    value = aws_s3_bucket.artifactory_binarystore.bucket
-  }
-
-  set {
-    name  = "artifactory.database.url"
-    value = "jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${var.artifactory_db_name}"
-  }
-
-  set {
-    name  = "artifactory.database.user"
-    value = var.artifactory_db_username
-  }
-
-  set {
-    name  = "artifactory.database.password"
-    value = var.artifactory_db_password
-  }
-
-  set {
-    name  = "xray.database.url"
-    value = "postgres://${aws_db_instance.xray_db.endpoint}/${var.xray_db_name}?sslmode="
-  }
-
-  set {
-    name  = "xray.database.user"
-    value = var.xray_db_username
-  }
-
-  set {
-    name  = "xray.database.password"
-    value = var.xray_db_password
-  }
-
-  # Wait for the release to complete deployment
-  wait = true
-
-  # Increase the timeout to 10 minutes for the JFrog Platform to deploy
-  timeout = 600
 }
 
-data "kubernetes_resources" "nginx_service" {
-  api_version    = "v1"
-  kind           = "Service"
-  namespace      = var.namespace
-  label_selector = "component=nginx"
+## Create a Helm release for the JFrog Platform
+## Leaving this as an example of how to deploy the JFrog Platform with Helm using multiple values files
 
-  depends_on = [
-    helm_release.jfrog_platform
-  ]
-}
+# resource "kubernetes_namespace" "jfrog_namespace" {
+#   metadata {
+#     annotations = {
+#       name = var.namespace
+#     }
+#
+#     labels = {
+#       app = "jfrog"
+#     }
+#
+#     name = var.namespace
+#   }
+# }
+#
+# # Create a Helm release for the JFrog Platform
+# resource "helm_release" "jfrog_platform" {
+#   name       = var.namespace
+#   chart      = "jfrog/jfrog-platform"
+#   version    = var.jfrog_platform_chart_version
+#   namespace  = var.namespace
+#
+#   depends_on = [
+#     aws_db_instance.artifactory_db,
+#     aws_s3_bucket.artifactory_binarystore,
+#     module.eks,
+#     helm_release.metrics_server
+#   ]
+#
+#   values = [
+#     file("${path.module}/jfrog-values.yaml")
+#   ]
+#
+#   set {
+#     name  = "artifactory.artifactory.persistence.awsS3V3.region"
+#     value = var.region
+#   }
+#
+#   set {
+#     name  = "artifactory.artifactory.persistence.awsS3V3.bucketName"
+#     value = aws_s3_bucket.artifactory_binarystore.bucket
+#   }
+#
+#   set {
+#     name  = "artifactory.database.url"
+#     value = "jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${var.artifactory_db_name}"
+#   }
+#
+#   set {
+#     name  = "artifactory.database.user"
+#     value = var.artifactory_db_username
+#   }
+#
+#   set {
+#     name  = "artifactory.database.password"
+#     value = var.artifactory_db_password
+#   }
+#
+#   set {
+#     name  = "xray.database.url"
+#     value = "postgres://${aws_db_instance.xray_db.endpoint}/${var.xray_db_name}?sslmode="
+#   }
+#
+#   set {
+#     name  = "xray.database.user"
+#     value = var.xray_db_username
+#   }
+#
+#   set {
+#     name  = "xray.database.password"
+#     value = var.xray_db_password
+#   }
+#
+#   # Wait for the release to complete deployment
+#   wait = true
+#
+#   # Increase the timeout to 10 minutes for the JFrog Platform to deploy
+#   timeout = 600
+# }
+#
+# data "kubernetes_resources" "nginx_service" {
+#   api_version    = "v1"
+#   kind           = "Service"
+#   namespace      = var.namespace
+#   label_selector = "component=nginx"
+#
+#   depends_on = [
+#     helm_release.jfrog_platform
+#   ]
+# }

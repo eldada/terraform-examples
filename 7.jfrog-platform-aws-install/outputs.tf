@@ -24,7 +24,10 @@ output "_05_setting_cluster_kubectl_context" {
   value       = "aws eks --region ${var.region} update-kubeconfig --name ${module.eks.cluster_name}"
 }
 
-output "_06_artifactory_url" {
-  description = "The URL of the load balancer for Artifactory"
-  value = "https://${data.kubernetes_resources.nginx_service.objects[0].status.loadBalancer.ingress[0].hostname}"
+# Output the command to install Artifactory with Helm
+# TODO: Fix Xray sizing breaking the template
+output "_06_jfrog_platform_install_command" {
+  description = "The Helm command to install the JFrog Platform (after setting up kubectl context)"
+  # value       = "helm upgrade --install jfrog jfrog/jfrog-platform --version ${var.jfrog_platform_chart_version} --namespace ${var.namespace} --create-namespace -f ${path.module}/jfrog-values.yaml -f ${path.module}/artifactory-license.yaml -f ${path.module}/jfrog-artifactory-${var.sizing}-adjusted.yaml -f ${path.module}/jfrog-xray-${var.sizing}-adjusted.yaml -f ${path.module}/jfrog-custom.yaml --timeout 600s"
+  value       = "helm upgrade --install jfrog jfrog/jfrog-platform --version ${var.jfrog_platform_chart_version} --namespace ${var.namespace} --create-namespace -f ${path.module}/jfrog-values.yaml -f ${path.module}/artifactory-license.yaml -f ${path.module}/jfrog-artifactory-${var.sizing}-adjusted.yaml -f ${path.module}/jfrog-custom.yaml --timeout 600s"
 }

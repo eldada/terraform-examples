@@ -3,7 +3,7 @@ This example will prepare the AWS infrastructure and services required to run [J
 1. The AWS VPC
 2. RDS (PostgreSQL) as the database
 2. S3 as the object storage
-3. EKS as the Kubernetes cluster running Artifactory
+3. EKS as the Kubernetes cluster for running Artifactory
 
 The resources are split between individual files for easy and clear separation.
 
@@ -52,4 +52,20 @@ terraform destroy
 To get the `kubectl` configuration for the EKS cluster, run the following command
 ```shell
 aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name)
+```
+
+### Install Artifactory
+Once done, install Artifactory using the Helm Chart with the following command.
+
+Terraform will create the needed configuration files to be used for the `helm install` command.
+This command will auto generate and be writen to the console when you run the `Terraform apply` command.
+```shell
+helm upgrade --install artifactory jfrog/artifactory \
+  --version <version> \
+  --namespace <namespace> --create-namespace \
+  -f artifactory-values.yaml \
+  -f artifactory-license.yaml \
+  -f artifactory/sizing/artifactory-<sizing>.yaml \
+  -f artifactory-custom.yaml \
+  --timeout 600s
 ```

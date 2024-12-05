@@ -23,7 +23,7 @@ resource "aws_db_instance" "artifactory_db" {
       var.artifactory_rds_size_default
   )
 
-  storage_type      = "gp3"        # Using gp3 for storage type
+  storage_type      = "gp3"
   allocated_storage = (
       var.sizing == "medium"  ? "250" :
       var.sizing == "large"   ? "500" :

@@ -115,7 +115,7 @@ module "eks" {
 
         pre_bootstrap_user_data = <<-EOF
         # This script will run on all nodes before the kubelet starts
-        echo XYZ > /tmp/xyz.txt
+        echo "It works!" > /tmp/pre_bootstrap_user_data.txt
         EOF
     }
 

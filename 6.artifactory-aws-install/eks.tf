@@ -40,18 +40,6 @@ module "eks" {
             AmazonS3FullAccess = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
             AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
         }
-        block_device_mappings = {
-            xvda = {
-                device_name = "/dev/xvda"
-                ebs = {
-                    volume_size           = 100
-                    volume_type           = "gp3"
-                    iops                  = 3000
-                    throughput            = 200
-                    delete_on_termination = true
-                }
-            }
-        }
         pre_bootstrap_user_data = <<-EOF
         # This script will run on all nodes before the kubelet starts
         echo "It works!" > /tmp/pre_bootstrap_user_data.txt
@@ -71,7 +59,6 @@ module "eks" {
                 var.sizing == "2xlarge" ? var.artifactory_node_size_large :
                 var.artifactory_node_size_default
             )]
-
             min_size     = 1
             max_size     = 10
             desired_size = (
@@ -81,7 +68,33 @@ module "eks" {
                 var.sizing == "2xlarge" ? 6 :
                 1
             )
-
+            block_device_mappings = {
+                xvda = {
+                    device_name = "/dev/xvda"
+                    ebs = {
+                        volume_type = "gp3"
+                        volume_size = (
+                            var.sizing == "large"   ? 1000 :
+                            var.sizing == "xlarge"  ? 1000 :
+                            var.sizing == "2xlarge" ? 1000 :
+                            500
+                        )
+                        iops = (
+                            var.sizing == "large"   ? 6000 :
+                            var.sizing == "xlarge"  ? 6000 :
+                            var.sizing == "2xlarge" ? 6000 :
+                            3000
+                        )
+                        throughput = (
+                            var.sizing == "large"   ? 1000 :
+                            var.sizing == "xlarge"  ? 1000 :
+                            var.sizing == "2xlarge" ? 1000 :
+                            500
+                        )
+                        delete_on_termination = true
+                    }
+                }
+            }
             labels = {
                 "group" = "artifactory"
             }

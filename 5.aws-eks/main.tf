@@ -108,10 +108,15 @@ module "eks" {
     subnet_ids = module.vpc.private_subnets
 
     eks_managed_node_group_defaults = {
-        ami_type = "AL2_x86_64"
+        ami_type = "AL2_ARM_64"
         iam_role_additional_policies = {
             AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
         }
+
+        pre_bootstrap_user_data = <<-EOF
+        # This script will run on all nodes before the kubelet starts
+        echo XYZ > /tmp/xyz.txt
+        EOF
     }
 
     eks_managed_node_groups = {

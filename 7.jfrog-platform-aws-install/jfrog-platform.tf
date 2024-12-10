@@ -112,13 +112,13 @@ resource "local_file" "jfrog_platform_values" {
           bucketName: "artifactory-${var.region}-${var.s3_bucket_name_suffix}"
 
     database:
-      url: "jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${var.artifactory_db_name}"
+      url: "jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${var.artifactory_db_name}?sslmode=require"
       user: "${var.artifactory_db_username}"
       password: "${var.artifactory_db_password}"
 
   xray:
     database:
-      url: "postgres://${aws_db_instance.xray_db.endpoint}/${var.xray_db_name}?sslmode="
+      url: "postgres://${aws_db_instance.xray_db.endpoint}/${var.xray_db_name}?sslmode=require"
       user: "${var.xray_db_username}"
       password: "${var.xray_db_password}"
 

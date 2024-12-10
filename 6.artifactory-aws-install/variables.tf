@@ -68,12 +68,57 @@ variable "artifactory_rds_size_2xlarge" {
   default = "db.m7g.16xlarge"
 }
 
+variable "artifactory_rds_disk_size_default" {
+  default = 100
+}
+variable "artifactory_rds_disk_size_medium" {
+  default = 250
+}
+variable "artifactory_rds_disk_size_large" {
+  default = 500
+}
+variable "artifactory_rds_disk_size_xlarge" {
+  default = 1000
+}
+
+variable "artifactory_rds_disk_size_2xlarge" {
+  default = 1500
+}
+
+variable "artifactory_rds_disk_max_size" {
+  default = 2000
+}
+
 variable "artifactory_node_size_default" {
   default = "m7g.2xlarge"
 }
 
 variable "artifactory_node_size_large" {
   default = "m7g.4xlarge"
+}
+
+variable "artifactory_disk_size_default" {
+  default = 500
+}
+
+variable "artifactory_disk_size_large" {
+  default = 1000
+}
+
+variable "artifactory_disk_iops_default" {
+  default = 3000
+}
+
+variable "artifactory_disk_iops_large" {
+  default = 6000
+}
+
+variable "artifactory_disk_throughput_default" {
+  default = 500
+}
+
+variable "artifactory_disk_throughput_large" {
+  default = 1000
 }
 
 variable "nginx_node_size_default" {

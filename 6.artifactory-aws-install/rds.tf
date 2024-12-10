@@ -25,14 +25,14 @@ resource "aws_db_instance" "artifactory_db" {
 
   storage_type      = "gp3"
   allocated_storage = (
-      var.sizing == "medium"  ? "250" :
-      var.sizing == "large"   ? "500" :
-      var.sizing == "xlarge"  ? "1000" :
-      var.sizing == "2xlarge" ? "1500" :
-      "100"
+      var.sizing == "medium"  ? var.artifactory_rds_disk_size_medium :
+      var.sizing == "large"   ? var.artifactory_rds_disk_size_large :
+      var.sizing == "xlarge"  ? var.artifactory_rds_disk_size_xlarge :
+      var.sizing == "2xlarge" ? var.artifactory_rds_disk_size_2xlarge :
+      var.artifactory_rds_disk_size_default
   )
 
-  max_allocated_storage  = 2000          # Set maximum size for storage autoscaling (optional)
+  max_allocated_storage  = var.artifactory_rds_disk_max_size
   storage_encrypted      = true
 
   db_name                = var.db_name

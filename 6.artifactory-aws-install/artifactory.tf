@@ -48,7 +48,7 @@ resource "local_file" "artifactory_values" {
 
   database:
     # Get the DB endpoint from the RDS console
-    url: "jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${var.db_name}"
+    url: "jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${var.db_name}?sslmode=require"
     user: "${var.db_username}"
     password: "${var.db_password}"
   EOT

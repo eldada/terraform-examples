@@ -41,10 +41,6 @@ artifactory:
     nodeSelector:
       group: "artifactory"
 
-  ## Disable metadata until issue fixed
-  metadata:
-    enabled: false
-
   ## Nginx
   nginx:
     disableProxyBuffering: true

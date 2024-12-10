@@ -14,6 +14,9 @@ provider "kubernetes" {
 # Fetch the Artifactory Helm chart and untar it to the current directory so helm install can use the sizing files
 resource "null_resource" "shell" {
   provisioner "local-exec" {
+    command = "rm -rf artifactory-*.tgz"
+  }
+  provisioner "local-exec" {
     command = "helm fetch artifactory --version ${var.artifactory_chart_version} --repo https://charts.jfrog.io --untar"
   }
 }
@@ -25,11 +28,20 @@ resource "local_file" "empty_license" {
   content = "## Empty file to satisfy Helm requirements"
 }
 
+# Set the cache-fs-size based on the sizing variable to 80% of the disk size
+locals {
+  cache-fs-size = (var.sizing == "large"  ? var.artifactory_disk_size_large * 0.8 :
+                  var.sizing == "xlarge"  ? var.artifactory_disk_size_large * 0.8 :
+                  var.sizing == "2xlarge" ? var.artifactory_disk_size_large * 0.8 :
+                  var.artifactory_disk_size_default * 0.8)
+}
+
 # Write the artifactory-custom.yaml file with the variables needed
 resource "local_file" "artifactory_values" {
   content  = <<-EOT
   artifactory:
     persistence:
+      maxCacheSize: "${local.cache-fs-size}000000000"
       awsS3V3:
         region: "${var.region}"
         bucketName: "artifactory-${var.region}-${var.s3_bucket_name_suffix}"

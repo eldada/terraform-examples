@@ -6,7 +6,7 @@ variable "region" {
 
 # WARNING: CIDR "0.0.0.0/0" is full public access to the cluster. You should use a more restrictive CIDR
 variable "cluster_public_access_cidrs" {
-  default = "0.0.0.0/0"
+  default = ["0.0.0.0/0"]
 }
 
 variable "vpc_cidr" {
@@ -49,6 +49,30 @@ variable "artifactory_rds_size_2xlarge" {
   default = "db.m7g.16xlarge"
 }
 
+variable "artifactory_rds_disk_size_default" {
+  default = 100
+}
+
+variable "artifactory_rds_disk_size_medium" {
+  default = 250
+}
+
+variable "artifactory_rds_disk_size_large" {
+  default = 500
+}
+
+variable "artifactory_rds_disk_size_xlarge" {
+  default = 1000
+}
+
+variable "artifactory_rds_disk_size_2xlarge" {
+  default = 1500
+}
+
+variable "artifactory_rds_disk_max_size" {
+  default = 2000
+}
+
 variable "xray_rds_size_default" {
   default = "db.m7g.xlarge"
 }
@@ -69,6 +93,30 @@ variable "xray_rds_size_2xlarge" {
   default = "db.m7g.12xlarge"
 }
 
+variable "xray_rds_disk_size_default" {
+  default = 100
+}
+
+variable "xray_rds_disk_size_medium" {
+  default = 250
+}
+
+variable "xray_rds_disk_size_large" {
+  default = 500
+}
+
+variable "xray_rds_disk_size_xlarge" {
+  default = 1000
+}
+
+variable "xray_rds_disk_size_2xlarge" {
+  default = 1500
+}
+
+variable "xray_rds_disk_max_size" {
+  default = 2000
+}
+
 variable "artifactory_node_size_default" {
   default = "m7g.2xlarge"
 }
@@ -77,12 +125,60 @@ variable "artifactory_node_size_large" {
   default = "m7g.4xlarge"
 }
 
+variable "artifactory_disk_size_default" {
+  default = 500
+}
+
+variable "artifactory_disk_size_large" {
+  default = 1000
+}
+
+variable "artifactory_disk_iops_default" {
+  default = 3000
+}
+
+variable "artifactory_disk_iops_large" {
+  default = 6000
+}
+
+variable "artifactory_disk_throughput_default" {
+  default = 500
+}
+
+variable "artifactory_disk_throughput_large" {
+  default = 1000
+}
+
 variable "xray_node_size_default" {
   default = "c7g.2xlarge"
 }
 
 variable "xray_node_size_xlarge" {
   default = "c7g.4xlarge"
+}
+
+variable "xray_disk_size_default" {
+  default = 100
+}
+
+variable "xray_disk_size_large" {
+  default = 200
+}
+
+variable "xray_disk_iops_default" {
+  default = 3000
+}
+
+variable "xray_disk_iops_large" {
+  default = 6000
+}
+
+variable "xray_disk_throughput_default" {
+  default = 500
+}
+
+variable "xray_disk_throughput_large" {
+  default = 1000
 }
 
 variable "nginx_node_size_default" {

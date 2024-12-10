@@ -40,22 +40,21 @@ module "eks" {
             AmazonS3FullAccess = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
             AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
         }
-        block_device_mappings = {
-            xvda = {
-                device_name = "/dev/xvda"
-                ebs = {
-                    volume_size           = 100
-                    volume_type           = "gp3"
-                    iops                  = 3000
-                    throughput            = 200
-                    delete_on_termination = true
-                }
-            }
-        }
         pre_bootstrap_user_data = <<-EOF
         # This script will run on all nodes before the kubelet starts
         echo "It works!" > /tmp/pre_bootstrap_user_data.txt
         EOF
+        block_device_mappings = {
+            xvda = {
+                device_name = "/dev/xvda"
+                ebs = {
+                    volume_type = "gp3"
+                    volume_size = 50
+                    throughput  = 250
+                    delete_on_termination = true
+                }
+            }
+        }
         tags = {
             Group = var.common_tag
         }
@@ -71,7 +70,6 @@ module "eks" {
                 var.sizing == "2xlarge" ? var.artifactory_node_size_large :
                 var.artifactory_node_size_default
             )]
-
             min_size     = 1
             max_size     = 10
             desired_size = (
@@ -81,7 +79,33 @@ module "eks" {
                 var.sizing == "2xlarge" ? 6 :
                 1
             )
-
+            block_device_mappings = {
+                xvda = {
+                    device_name = "/dev/xvda"
+                    ebs = {
+                        volume_type = "gp3"
+                        volume_size = (
+                            var.sizing == "large"   ? var.artifactory_disk_size_large :
+                            var.sizing == "xlarge"  ? var.artifactory_disk_size_large :
+                            var.sizing == "2xlarge" ? var.artifactory_disk_size_large :
+                            var.artifactory_disk_size_default
+                        )
+                        iops = (
+                            var.sizing == "large"   ? var.artifactory_disk_iops_large :
+                            var.sizing == "xlarge"  ? var.artifactory_disk_iops_large :
+                            var.sizing == "2xlarge" ? var.artifactory_disk_iops_large :
+                            var.artifactory_disk_iops_default
+                        )
+                        throughput = (
+                            var.sizing == "large"   ? var.artifactory_disk_throughput_large :
+                            var.sizing == "xlarge"  ? var.artifactory_disk_throughput_large :
+                            var.sizing == "2xlarge" ? var.artifactory_disk_throughput_large :
+                            var.artifactory_disk_throughput_default
+                        )
+                        delete_on_termination = true
+                    }
+                }
+            }
             labels = {
                 "group" = "artifactory"
             }
@@ -119,11 +143,42 @@ module "eks" {
                 var.sizing == "2xlarge" ? var.xray_node_size_xlarge :
                 var.xray_node_size_default
             )]
-
             min_size     = 1
-            max_size     = 4
-            desired_size = 1
-
+            max_size     = 10
+            desired_size = (
+                var.sizing == "medium"  ? 2 :
+                var.sizing == "large"   ? 3 :
+                var.sizing == "xlarge"  ? 4 :
+                var.sizing == "2xlarge" ? 6 :
+                1
+            )
+            block_device_mappings = {
+                xvda = {
+                    device_name = "/dev/xvda"
+                    ebs = {
+                        volume_type = "gp3"
+                        volume_size = (
+                            var.sizing == "large"   ? var.xray_disk_size_large :
+                            var.sizing == "xlarge"  ? var.xray_disk_size_large :
+                            var.sizing == "2xlarge" ? var.xray_disk_size_large :
+                            var.xray_disk_size_default
+                        )
+                        iops = (
+                            var.sizing == "large"   ? var.xray_disk_iops_large :
+                            var.sizing == "xlarge"  ? var.xray_disk_iops_large :
+                            var.sizing == "2xlarge" ? var.xray_disk_iops_large :
+                            var.xray_disk_iops_default
+                        )
+                        throughput = (
+                            var.sizing == "large"   ? var.xray_disk_throughput_large :
+                            var.sizing == "xlarge"  ? var.xray_disk_throughput_large :
+                            var.sizing == "2xlarge" ? var.xray_disk_throughput_large :
+                            var.xray_disk_throughput_default
+                        )
+                        delete_on_termination = true
+                    }
+                }
+            }
             labels = {
                 "group" = "xray"
             }

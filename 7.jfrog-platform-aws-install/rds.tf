@@ -13,6 +13,7 @@ resource "aws_db_instance" "artifactory_db" {
   identifier       = "artifactory-db"
   engine           = "postgres"
   engine_version   = var.rds_postgres_version
+
   # Set the instance class based on the sizing variable
   instance_class = (
     var.sizing == "medium"  ? var.artifactory_rds_size_medium :
@@ -24,14 +25,14 @@ resource "aws_db_instance" "artifactory_db" {
 
   storage_type      = "gp3"
   allocated_storage = (
-    var.sizing == "medium"  ? "250" :
-    var.sizing == "large"   ? "500" :
-    var.sizing == "xlarge"  ? "1000" :
-    var.sizing == "2xlarge" ? "1500" :
-    "100"
+    var.sizing == "medium"  ? var.artifactory_rds_disk_size_medium :
+    var.sizing == "large"   ? var.artifactory_rds_disk_size_large :
+    var.sizing == "xlarge"  ? var.artifactory_rds_disk_size_xlarge :
+    var.sizing == "2xlarge" ? var.artifactory_rds_disk_size_2xlarge :
+    var.artifactory_rds_disk_size_default
   )
 
-  max_allocated_storage  = 2000          # Set maximum size for storage autoscaling (optional)
+  max_allocated_storage  = var.artifactory_rds_disk_max_size
   storage_encrypted      = true
 
   db_name                = var.artifactory_db_name
@@ -62,14 +63,14 @@ resource "aws_db_instance" "xray_db" {
 
   storage_type      = "gp3"
   allocated_storage = (
-    var.sizing == "medium"  ? "250" :
-    var.sizing == "large"   ? "500" :
-    var.sizing == "xlarge"  ? "1000" :
-    var.sizing == "2xlarge" ? "1500" :
-    "100"
+    var.sizing == "medium"  ? var.xray_rds_disk_size_medium :
+    var.sizing == "large"   ? var.xray_rds_disk_size_large :
+    var.sizing == "xlarge"  ? var.xray_rds_disk_size_xlarge :
+    var.sizing == "2xlarge" ? var.xray_rds_disk_size_2xlarge :
+    var.xray_rds_disk_size_default
   )
 
-  max_allocated_storage  = 2000          # Set maximum size for storage autoscaling (optional)
+  max_allocated_storage  = var.xray_rds_disk_max_size
   storage_encrypted      = true
 
   db_name                = var.xray_db_name

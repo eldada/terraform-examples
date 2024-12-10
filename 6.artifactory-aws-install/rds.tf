@@ -16,20 +16,20 @@ resource "aws_db_instance" "artifactory_db" {
 
   # Set the instance class based on the sizing variable
   instance_class = (
-      var.sizing == "medium"  ? var.artifactory_rds_size_medium :
-      var.sizing == "large"   ? var.artifactory_rds_size_large :
-      var.sizing == "xlarge"  ? var.artifactory_rds_size_xlarge :
-      var.sizing == "2xlarge" ? var.artifactory_rds_size_2xlarge :
-      var.artifactory_rds_size_default
+    var.sizing == "medium"  ? var.artifactory_rds_size_medium :
+    var.sizing == "large"   ? var.artifactory_rds_size_large :
+    var.sizing == "xlarge"  ? var.artifactory_rds_size_xlarge :
+    var.sizing == "2xlarge" ? var.artifactory_rds_size_2xlarge :
+    var.artifactory_rds_size_default
   )
 
   storage_type      = "gp3"
   allocated_storage = (
-      var.sizing == "medium"  ? var.artifactory_rds_disk_size_medium :
-      var.sizing == "large"   ? var.artifactory_rds_disk_size_large :
-      var.sizing == "xlarge"  ? var.artifactory_rds_disk_size_xlarge :
-      var.sizing == "2xlarge" ? var.artifactory_rds_disk_size_2xlarge :
-      var.artifactory_rds_disk_size_default
+    var.sizing == "medium"  ? var.artifactory_rds_disk_size_medium :
+    var.sizing == "large"   ? var.artifactory_rds_disk_size_large :
+    var.sizing == "xlarge"  ? var.artifactory_rds_disk_size_xlarge :
+    var.sizing == "2xlarge" ? var.artifactory_rds_disk_size_2xlarge :
+    var.artifactory_rds_disk_size_default
   )
 
   max_allocated_storage  = var.artifactory_rds_disk_max_size

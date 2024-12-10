@@ -71,12 +71,15 @@ variable "artifactory_rds_size_2xlarge" {
 variable "artifactory_rds_disk_size_default" {
   default = 100
 }
+
 variable "artifactory_rds_disk_size_medium" {
   default = 250
 }
+
 variable "artifactory_rds_disk_size_large" {
   default = 500
 }
+
 variable "artifactory_rds_disk_size_xlarge" {
   default = 1000
 }

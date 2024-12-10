@@ -144,8 +144,14 @@ module "eks" {
                 var.xray_node_size_default
             )]
             min_size     = 1
-            max_size     = 4
-            desired_size = 1
+            max_size     = 10
+            desired_size = (
+                var.sizing == "medium"  ? 2 :
+                var.sizing == "large"   ? 3 :
+                var.sizing == "xlarge"  ? 4 :
+                var.sizing == "2xlarge" ? 6 :
+                1
+            )
             block_device_mappings = {
                 xvda = {
                     device_name = "/dev/xvda"

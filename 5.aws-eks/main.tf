@@ -4,7 +4,7 @@
 
 terraform {
     required_providers {
-        # Kubernetes provider
+        # AWS provider
         aws = {
             source  = "hashicorp/aws"
         }

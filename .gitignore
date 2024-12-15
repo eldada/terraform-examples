@@ -1,5 +1,5 @@
 .idea
-1.aws-vpc-and-ec2/.terraform
+**/.terraform/
 .terraform.lock.hcl
 *.tfstate
 terraform.tfstate*

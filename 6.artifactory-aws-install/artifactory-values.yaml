@@ -23,6 +23,10 @@ artifactory:
       path: artifactory/filestore
       useInstanceCredentials: true
 
+      ## With an Artifactory Enterprise license, the following settings will enable signed URL support for S3
+      enableSignedUrlRedirect: true
+      signedUrlExpirySeconds: 60
+
   ## Require multiple Artifactory pods to run on separate nodes
   podAntiAffinity:
     type: "hard"

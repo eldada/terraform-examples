@@ -189,6 +189,14 @@ variable "nginx_node_size_large" {
   default = "c7g.2xlarge"
 }
 
+variable "extra_node_count" {
+  default = "3"
+}
+
+variable "extra_node_size" {
+  default = "c7g.xlarge"
+}
+
 variable "artifactory_db_name" {
   description = "The database name"
   default     = "artifactory"
@@ -239,6 +247,10 @@ variable "xray_chart_version" {
 
 variable "jfrog_platform_chart_version" {
   default = "10.20.1"
+}
+
+variable "deploy_metrics_server" {
+  default = true
 }
 
 variable "common_tag" {

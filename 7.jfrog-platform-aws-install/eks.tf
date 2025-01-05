@@ -188,11 +188,11 @@ module "eks" {
         extra = {
             name = "extra-node-group"
 
-            instance_types = [var.nginx_node_size_default]
+            instance_types = [var.extra_node_size]
 
             min_size     = 1
             max_size     = 3
-            desired_size = 3
+            desired_size = var.extra_node_count
 
             labels = {
                 "group" = "extra"

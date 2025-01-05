@@ -1,3 +1,4 @@
+# Configure the Helm provider to use the EKS cluster
 provider "helm" {
   kubernetes {
     host                   = module.eks.cluster_endpoint
@@ -8,9 +9,10 @@ provider "helm" {
 
 # Install the metrics server
 resource "helm_release" "metrics_server" {
+  count = var.deploy_metrics_server ? 1 : 0
+
   name       = "metrics-server"
   chart      = "metrics-server"
-  # version    = "3.12.2"
   namespace  = "kube-system"
 
   # Repository to install the chart from

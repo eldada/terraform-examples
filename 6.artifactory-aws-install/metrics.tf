@@ -9,6 +9,8 @@ provider "helm" {
 
 # Install the metrics server
 resource "helm_release" "metrics_server" {
+  count = var.deploy_metrics_server ? 1 : 0
+
   name       = "metrics-server"
   chart      = "metrics-server"
   namespace  = "kube-system"

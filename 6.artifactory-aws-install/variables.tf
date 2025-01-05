@@ -132,12 +132,24 @@ variable "nginx_node_size_large" {
   default = "c7g.2xlarge"
 }
 
+variable "extra_node_count" {
+  default = "3"
+}
+
+variable "extra_node_size" {
+  default = "c7g.xlarge"
+}
+
 variable "namespace" {
   default = "jfrog"
 }
 
 variable "artifactory_chart_version" {
-  default = "107.98.9"
+  default = "107.98.12"
+}
+
+variable "deploy_metrics_server" {
+  default = true
 }
 
 variable "common_tag" {

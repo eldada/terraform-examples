@@ -237,16 +237,8 @@ variable "namespace" {
   default = "jfrog"
 }
 
-variable "artifactory_chart_version" {
-  default = "107.98.9"
-}
-
-variable "xray_chart_version" {
-  default = "103.107.11"
-}
-
 variable "jfrog_platform_chart_version" {
-  default = "10.20.1"
+  default = "10.20.3"
 }
 
 variable "deploy_metrics_server" {

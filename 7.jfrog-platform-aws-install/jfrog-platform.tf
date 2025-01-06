@@ -11,33 +11,22 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
 }
 
-## Until sizing specs are part of the jfrog-platform chart, we pull them from the individual charts
-
-# Fetch the Artifactory Helm chart and untar it to the current directory so helm install can use the sizing files
-resource "null_resource" "fetch_artifactory_chart" {
-  provisioner "local-exec" {
-    command = "rm -rf artifactory-*.tgz"
-  }
-  provisioner "local-exec" {
-    command = "helm fetch artifactory --version ${var.artifactory_chart_version} --repo https://charts.jfrog.io --untar"
-  }
-}
-
-# Fetch the Xray Helm chart and untar it to the current directory so helm install can use the sizing files
-resource "null_resource" "fetch_xray_chart" {
+## Until sizing specs are part of the jfrog-platform chart, we pull them from the individual charts that are inside the platform chart
+# Fetch the JFrog Platform Helm chart and untar it to the current directory so we can use the sizing files to create the final values files
+resource "null_resource" "fetch_platform_chart" {
   provisioner "local-exec" {
     command = "rm -rf xray-*.tgz"
   }
   provisioner "local-exec" {
-    command = "helm fetch xray --version ${var.xray_chart_version} --repo https://charts.jfrog.io --untar"
+    command = "helm fetch jfrog-platform --version ${var.jfrog_platform_chart_version} --repo https://charts.jfrog.io --untar"
   }
 }
 
 ################### Artifactory sizing
 ## Prepare the final values files for the JFrog Platform sizing
 data "local_file" "artifactory_sizing" {
-  filename = "${path.module}/artifactory/sizing/artifactory-${var.sizing}.yaml"
-  depends_on = [null_resource.fetch_artifactory_chart]
+  filename = "${path.module}/jfrog-platform/charts/artifactory/sizing/artifactory-${var.sizing}.yaml"
+  depends_on = [null_resource.fetch_platform_chart]
 }
 
 # Inject two spaces before all lines and load into a variable
@@ -62,8 +51,8 @@ resource "local_file" "new_artifactory_sizing" {
 ################### Xray sizing
 ## Prepare the final values files for the JFrog Platform sizing
 data "local_file" "xray_sizing" {
-  filename = "${path.module}/xray/sizing/xray-${var.sizing}.yaml"
-  depends_on = [null_resource.fetch_xray_chart]
+  filename = "${path.module}/jfrog-platform/charts/xray/sizing/xray-${var.sizing}.yaml"
+  depends_on = [null_resource.fetch_platform_chart]
 }
 
 # Inject two spaces before all lines and load into a variable

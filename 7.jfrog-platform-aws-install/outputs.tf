@@ -28,6 +28,5 @@ output "_05_setting_cluster_kubectl_context" {
 # TODO: Fix Xray sizing breaking the template
 output "_06_jfrog_platform_install_command" {
   description = "The Helm command to install the JFrog Platform (after setting up kubectl context)"
-  # value       = "helm upgrade --install jfrog jfrog/jfrog-platform --version ${var.jfrog_platform_chart_version} --namespace ${var.namespace} --create-namespace -f ${path.module}/jfrog-values.yaml -f ${path.module}/artifactory-license.yaml -f ${path.module}/jfrog-artifactory-${var.sizing}-adjusted.yaml -f ${path.module}/jfrog-xray-${var.sizing}-adjusted.yaml -f ${path.module}/jfrog-custom.yaml --timeout 600s"
   value       = "helm upgrade --install jfrog jfrog/jfrog-platform --version ${var.jfrog_platform_chart_version} --namespace ${var.namespace} --create-namespace -f ${path.module}/jfrog-values.yaml -f ${path.module}/artifactory-license.yaml -f ${path.module}/jfrog-artifactory-${var.sizing}-adjusted.yaml -f ${path.module}/jfrog-custom.yaml --timeout 600s"
 }

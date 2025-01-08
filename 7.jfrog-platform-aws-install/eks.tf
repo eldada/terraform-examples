@@ -50,7 +50,7 @@ module "eks" {
                 ebs = {
                     volume_type = "gp3"
                     volume_size = 50
-                    throughput  = 250
+                    throughput  = 125
                     delete_on_termination = true
                 }
             }

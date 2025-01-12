@@ -1,20 +1,3 @@
-# Configure the Helm provider and create a Helm release
-# Define the required Helm provider
-terraform {
-  required_providers {
-    helm = {
-      source  = "hashicorp/helm"
-    }
-  }
-}
-
-# Use the local Kubernetes configuration
-provider "helm" {
-  kubernetes {
-    config_path = "~/.kube/config"
-  }
-}
-
 # Create an empty artifactory-license.yaml if missing
 resource "local_file" "empty_license" {
   count = fileexists("${path.module}/artifactory-license.yaml") ? 0 : 1
@@ -27,7 +10,7 @@ resource "helm_release" "artifactory" {
   name        = "artifactory"
   repository  = "https://charts.jfrog.io"
   chart       = "artifactory"
-  version     = "107.98.9"
+  version     = var.chart_version
 
   depends_on = [
     local_file.empty_license

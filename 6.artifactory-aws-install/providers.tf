@@ -1,5 +1,4 @@
 # Setup the providers
-
 terraform {
   ## Configure the remote backend (Artifactory)
   ## This will store the state file in Artifactory.
@@ -14,6 +13,9 @@ terraform {
   # }
 
   required_providers {
+    local = {
+      source  = "hashicorp/local"
+    }
     # Kubernetes provider
     aws = {
       source  = "hashicorp/aws"

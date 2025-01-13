@@ -3,7 +3,7 @@ The work here assumes you have a Kubernetes cluster with `kubectl` installed and
 
 ## Files
 - The [variables.tf](variables.tf) contains the different variables configurable in this example.
-- The [provider.tf](provider.tf) contains the terraform providers needed for this example.
+- The [providers.tf](providers.tf) contains the terraform providers needed for this example.
 - The [main.tf](main.tf) file has the configuration that Terraform will use to create the Nginx in the Kubernetes cluster.
 
 This example also has a commented out snippet of using Artifactory as the [Terraform backend](https://jfrog.com/help/r/jfrog-artifactory-documentation/terraform-backend-repository).

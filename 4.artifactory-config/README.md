@@ -12,7 +12,7 @@ helm upgrade --install artifactory jfrog/artifactory --set postgresql.postgresql
 
 ## Files
 - The [variables.tf](variables.tf) contains the different variables configurable in this example.
-- The [provider.tf](provider.tf) contains the terraform providers needed for this example.
+- The [providers.tf](providers.tf) contains the terraform providers needed for this example.
 - The [main.tf](main.tf) file has the configuration that Terraform will use to configure the Artifactory server.
 
 Create an [Artifactory access token](https://jfrog.com/help/r/how-to-generate-an-access-token-video/artifactory-creating-access-tokens-in-artifactory) and store it in a [terraform.tfvars](terraform.tfvars) file

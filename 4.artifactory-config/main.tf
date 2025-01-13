@@ -1,30 +1,5 @@
 # This file contains the terraform configuration to create the following resources in Artifactory
 
-# Define the required JFrog Artifactory provider
-terraform {
-    required_providers {
-        artifactory = {
-            source  = "jfrog/artifactory"
-        }
-    }
-}
-
-# Declare the variables with default values.
-# These are overridden in the terraform.tfvars file
-variable "artifactory_url" {
-    default = "http://localhost"
-}
-
-variable "artifactory_access_token" {
-    default = ""
-}
-
-# Configure the JFrog Artifactory server and access
-provider "artifactory" {
-    url           = "${var.artifactory_url}/artifactory"
-    access_token  = var.artifactory_access_token
-}
-
 # Create a local generic repository
 resource "artifactory_local_generic_repository" "generic-local" {
     key             = "generic-local"

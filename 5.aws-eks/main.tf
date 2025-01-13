@@ -2,44 +2,8 @@
 # AWS VPC and EKS cluster with a managed node group
 # It also creates a gp3 storage class and makes it the default
 
-terraform {
-    required_providers {
-        # AWS provider
-        aws = {
-            source  = "hashicorp/aws"
-        }
-        # Kubernetes provider
-        kubernetes = {
-            source  = "hashicorp/kubernetes"
-        }
-    }
-}
-
-variable "region" {
-    default = "eu-central-1"
-}
-
-# WARNING: CIDR "0.0.0.0/0" is full public access to the cluster, you should use a more restrictive CIDR
-variable "cluster_public_access_cidrs" {
-    default = ["0.0.0.0/0"]
-}
-
-variable "cluster_name" {
-    default = "demo-eks-cluster"
-}
-
-provider "aws" {
-    region = var.region
-}
-
 data "aws_eks_cluster_auth" "jfrog_cluster" {
     name = module.eks.cluster_name
-}
-
-provider "kubernetes" {
-    host                   = module.eks.cluster_endpoint
-    token                  = data.aws_eks_cluster_auth.jfrog_cluster.token
-    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
 }
 
 data "aws_availability_zones" "available" {

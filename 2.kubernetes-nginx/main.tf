@@ -56,3 +56,17 @@ resource "kubernetes_service" "nginx" {
     type = "LoadBalancer"
   }
 }
+
+data "kubernetes_service" "nginx_service" {
+  metadata {
+    name = kubernetes_service.nginx.metadata.0.name
+  }
+}
+
+output "nginx_service_cluster_ip" {
+  value = data.kubernetes_service.nginx_service.spec.0.cluster_ip
+}
+
+output "nginx_service_external_ip" {
+  value = data.kubernetes_service.nginx_service.status[0].load_balancer[0].ingress[0].ip
+}

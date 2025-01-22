@@ -90,8 +90,8 @@ module "eks" {
             instance_types = ["t4g.small"]
 
             min_size     = 1
-            max_size     = 3
-            desired_size = 1
+            max_size     = var.pool_max_size
+            desired_size = var.pool_desired_size
         }
 
         # two = {

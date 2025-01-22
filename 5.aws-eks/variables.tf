@@ -10,3 +10,11 @@ variable "cluster_public_access_cidrs" {
 variable "cluster_name" {
   default = "demo-eks-cluster"
 }
+
+variable "pool_max_size" {
+  default = 3
+}
+
+variable "pool_desired_size" {
+  default = 1
+}

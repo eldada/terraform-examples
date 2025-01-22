@@ -141,7 +141,7 @@ module "eks" {
 
             instance_types = [var.extra_node_size]
 
-            min_size     = 1
+            min_size     = 0
             max_size     = 3
             desired_size = var.extra_node_count
 
@@ -176,7 +176,7 @@ resource "kubernetes_storage_class" "gp3_storage_class" {
 module "ebs_csi_irsa_role" {
     source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
 
-    role_name             = "ebs-csi-${module.eks.cluster_name}"
+    role_name             = "ebs-csi-${module.eks.cluster_name}-${var.region}"
     attach_ebs_csi_policy = true
 
     oidc_providers = {

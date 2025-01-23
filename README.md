@@ -20,7 +20,7 @@ To set up Terraform with Artifactory, follow the instructions in the [Terraform 
 7. Create the needed [AWS infrastructure for running JFrog Artifactory and Xray in AWS](7.jfrog-platform-aws-install) using RDS, S3, and EKS. This uses the [JFrog Platform Helm Chart](https://github.com/jfrog/charts/tree/master/stable/jfrog-platform) to install Artifactory and Xray
 
 ## EKS Monitoring
-Many of the examples here spin up a Kubernetes cluster in AWS using EKS. To monitor the EKS cluster. 
+Many of the examples here spin up an EKS cluster in AWS.</br> 
 An easy way to get an observability stack for the EKS is by using [coroot](https://coroot.com/). The following steps will guide you on how to install coroot in EKS.
 
 NOTE: The instructions are also available in the [coroot operator install page](https://docs.coroot.com/installation/kubernetes/?edition=ce)

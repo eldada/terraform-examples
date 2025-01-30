@@ -15,7 +15,7 @@ provider "kubernetes" {
 # Fetch the JFrog Platform Helm chart and untar it to the current directory so we can use the sizing files to create the final values files
 resource "null_resource" "fetch_platform_chart" {
   provisioner "local-exec" {
-    command = "rm -rf xray-*.tgz"
+    command = "rm -rf jfrog-platform-*.tgz"
   }
   provisioner "local-exec" {
     command = "helm fetch jfrog-platform --version ${var.jfrog_platform_chart_version} --repo https://charts.jfrog.io --untar"

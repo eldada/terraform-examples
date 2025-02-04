@@ -230,7 +230,7 @@ variable "xray_db_password" {
 }
 
 variable "cluster_name" {
-  default = "jfrog-eks-cluster"
+  default = "jfrog"
 }
 
 variable "namespace" {
@@ -238,7 +238,7 @@ variable "namespace" {
 }
 
 variable "jfrog_platform_chart_version" {
-  default = "10.20.3"
+  default = "11.0.0"
 }
 
 variable "deploy_metrics_server" {

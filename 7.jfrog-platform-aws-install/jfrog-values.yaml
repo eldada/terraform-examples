@@ -224,12 +224,3 @@ rabbitmq:
 # Disable other services
 distribution:
   enabled: false
-
-insight:
-  enabled: false
-
-pipelines:
-  enabled: false
-
-redis:
-  enabled: false

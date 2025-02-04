@@ -1,7 +1,7 @@
 # This file is used to create an AWS EKS cluster and the managed node group(s)
 
 locals {
-    cluster_name = var.cluster_name
+    cluster_name = "${var.cluster_name}-${random_pet.unique_name.id}"
 }
 
 resource "aws_security_group_rule" "allow_management_from_my_ip" {
@@ -190,7 +190,7 @@ module "eks" {
 
             instance_types = [var.extra_node_size]
 
-            min_size     = 1
+            min_size     = 0
             max_size     = 3
             desired_size = var.extra_node_count
 

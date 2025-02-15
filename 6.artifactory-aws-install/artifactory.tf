@@ -17,7 +17,7 @@ resource "null_resource" "shell" {
     command = "rm -rf artifactory-*.tgz"
   }
   provisioner "local-exec" {
-    command = "helm fetch artifactory --version ${var.artifactory_chart_version} --repo https://charts.jfrog.io --untar"
+    command = "helm fetch artifactory --version ${var.artifactory_chart_version} --repo ${var.jfrog_charts_repository} --untar"
   }
 }
 

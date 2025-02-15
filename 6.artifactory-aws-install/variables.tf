@@ -144,8 +144,12 @@ variable "namespace" {
   default = "jfrog"
 }
 
+variable "jfrog_charts_repository" {
+  default = "https://charts.jfrog.io"
+}
+
 variable "artifactory_chart_version" {
-  default = "107.98.12"
+  default = "107.104.7"
 }
 
 variable "deploy_metrics_server" {

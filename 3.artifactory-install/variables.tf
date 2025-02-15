@@ -1,3 +1,3 @@
 variable "chart_version" {
-  default = "107.98.13"
+  default = "107.104.7"
 }

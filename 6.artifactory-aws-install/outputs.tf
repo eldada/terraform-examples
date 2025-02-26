@@ -15,7 +15,7 @@ output "_03_eks_cluster_name" {
 
 output "_04_resources_tag" {
   description = "The common tag applied on all resources"
-  value       = "Group: ${var.common_tag}"
+  value       = "Group: ${var.env_name}"
 }
 
 # Output the command to configure kubectl config to the newly created EKS cluster

@@ -148,11 +148,6 @@ variable "deploy_metrics_server" {
   default = true
 }
 
-variable "common_tag" {
-  description = "The 'Group' tag to apply to all resources"
-  default = var.env_name
-}
-
 variable "sizing" {
   type        = string
   description = "The sizing templates for the infrastructure and Artifactory"

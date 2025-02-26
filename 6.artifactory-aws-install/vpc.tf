@@ -31,6 +31,6 @@ module "vpc" {
     }
 
     tags = {
-        Group = var.common_tag
+        Group = var.env_name
     }
 }

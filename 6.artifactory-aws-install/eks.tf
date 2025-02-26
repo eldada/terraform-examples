@@ -56,7 +56,7 @@ module "eks" {
             }
         }
         tags = {
-            Group = var.common_tag
+            Group = var.env_name
         }
     }
 
@@ -152,7 +152,7 @@ module "eks" {
     }
 
     tags = {
-        Group = var.common_tag
+        Group = var.env_name
     }
 }
 

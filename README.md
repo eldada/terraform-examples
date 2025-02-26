@@ -1,5 +1,5 @@
-# Terraform Playground
-This repository contains a collection of Terraform configurations that I use to learn and experiment with Terraform.
+# Terraform Examples
+This repository contains a collection of [Terraform](https://www.terraform.io/) configurations that I use to learn and experiment with Terraform.
 
 ## Install Terraform
 Follow the [Install Terraform](https://developer.hashicorp.com/terraform/install) page to install Terraform on your machine.

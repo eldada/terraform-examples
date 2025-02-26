@@ -137,7 +137,7 @@ variable "extra_node_size" {
 }
 
 variable "namespace" {
-  default = "jfrog"
+  default = var.env_name
 }
 
 variable "jfrog_charts_repository" {
@@ -154,7 +154,7 @@ variable "deploy_metrics_server" {
 
 variable "common_tag" {
   description = "The 'Group' tag to apply to all resources"
-  default = "jfrog"
+  default = var.env_name
 }
 
 variable "sizing" {

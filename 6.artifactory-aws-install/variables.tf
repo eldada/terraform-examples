@@ -136,10 +136,6 @@ variable "extra_node_size" {
   default = "c7g.xlarge"
 }
 
-variable "namespace" {
-  default = var.env_name
-}
-
 variable "jfrog_charts_repository" {
   default = "https://charts.jfrog.io"
 }

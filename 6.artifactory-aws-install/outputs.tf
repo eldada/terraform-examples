@@ -27,5 +27,5 @@ output "_05_setting_cluster_kubectl_context" {
 # Output the command to install Artifactory with Helm
 output "_06_artifactory_install_command" {
   description = "The Helm command to install Artifactory (after setting up kubectl context)"
-  value = "helm upgrade --install artifactory jfrog/artifactory --version ${var.artifactory_chart_version} --namespace ${var.namespace} --create-namespace -f ${path.module}/artifactory-values.yaml -f ${path.module}/artifactory-license.yaml -f ${path.module}/artifactory/sizing/artifactory-${var.sizing}.yaml -f ${path.module}/artifactory-custom.yaml --timeout 600s"
+  value = "helm upgrade --install artifactory jfrog/artifactory --version ${var.artifactory_chart_version} --namespace ${var.env_name} --create-namespace -f ${path.module}/artifactory-values.yaml -f ${path.module}/artifactory-license.yaml -f ${path.module}/artifactory/sizing/artifactory-${var.sizing}.yaml -f ${path.module}/artifactory-custom.yaml --timeout 600s"
 }

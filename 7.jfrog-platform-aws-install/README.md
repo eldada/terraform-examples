@@ -56,7 +56,7 @@ aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terr
 Once done, install the JFrog Platform (Artifactory and Xray) using the Helm Chart with the following command.
 
 Terraform will create the needed configuration files to be used for the `helm install` command.
-This command will auto generate and be writen to the console when you run the `Terraform apply` command.
+This command will auto generate and be writen to the console when you run the `terraform apply` command.
 ```shell
 helm upgrade --install jfrog jfrog/jfrog-platform \
   --version <version> \

@@ -40,12 +40,8 @@ variable "db_password" {
   default     = "Password321"
 }
 
-variable "cluster_name" {
-  default = "jfrog-eks-cluster"
-}
-
-variable "s3_bucket_name_suffix" {
-  default = "jfrog-demo"
+variable "env_name" {
+  default = "jfrog"
 }
 
 variable "artifactory_rds_size_default" {

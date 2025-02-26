@@ -44,7 +44,7 @@ resource "local_file" "artifactory_values" {
       maxCacheSize: "${local.cache-fs-size}000000000"
       awsS3V3:
         region: "${var.region}"
-        bucketName: "artifactory-${var.region}-${var.s3_bucket_name_suffix}"
+        bucketName: "artifactory-${var.region}-${var.env_name}"
 
   database:
     url: "jdbc:postgresql://${aws_db_instance.artifactory_db.endpoint}/${var.db_name}?sslmode=require"

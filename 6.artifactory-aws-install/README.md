@@ -35,12 +35,12 @@ terraform init
 
 2. Plan the Terraform configuration by running the following command
 ```shell
-terraform plan -var 'sizing=small'
+terraform plan -var 'sizing=small' -var 'env_name=my-env'
 ```
 
 3. Apply the Terraform configuration by running the following command
 ```shell
-terraform apply -var 'sizing=small'
+terraform apply -var 'sizing=small' -var 'env_name=my-env'
 ```
 
 4. When you are done, you can destroy the resources by running the following command

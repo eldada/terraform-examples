@@ -40,12 +40,8 @@ variable "db_password" {
   default     = "Password321"
 }
 
-variable "cluster_name" {
-  default = "jfrog-eks-cluster"
-}
-
-variable "s3_bucket_name_suffix" {
-  default = "jfrog-demo"
+variable "env_name" {
+  default = "jfrog"
 }
 
 variable "artifactory_rds_size_default" {
@@ -140,10 +136,6 @@ variable "extra_node_size" {
   default = "c7g.xlarge"
 }
 
-variable "namespace" {
-  default = "jfrog"
-}
-
 variable "jfrog_charts_repository" {
   default = "https://charts.jfrog.io"
 }
@@ -154,11 +146,6 @@ variable "artifactory_chart_version" {
 
 variable "deploy_metrics_server" {
   default = true
-}
-
-variable "common_tag" {
-  description = "The 'Group' tag to apply to all resources"
-  default = "jfrog"
 }
 
 variable "sizing" {

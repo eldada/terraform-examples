@@ -1,7 +1,7 @@
 # This file is used to create an AWS EKS cluster and the managed node group(s)
 
 locals {
-    cluster_name = var.cluster_name
+    cluster_name = "${var.env_name}-eks-cluster"
 }
 
 resource "aws_security_group_rule" "allow_management_from_my_ip" {
@@ -56,7 +56,7 @@ module "eks" {
             }
         }
         tags = {
-            Group = var.common_tag
+            Group = var.env_name
         }
     }
 
@@ -152,7 +152,7 @@ module "eks" {
     }
 
     tags = {
-        Group = var.common_tag
+        Group = var.env_name
     }
 }
 

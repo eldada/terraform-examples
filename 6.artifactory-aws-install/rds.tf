@@ -1,16 +1,16 @@
 # This file creates an RDS instance for the Artifactory database
 
 resource "aws_db_subnet_group" "artifactory_subnet_group" {
-  name       = "artifactory-subnet-group"
+  name       = "artifactory-subnet-group-${var.env_name}"
   subnet_ids = module.vpc.private_subnets
 
   tags = {
-    Group = var.common_tag
+    Group = var.env_name
   }
 }
 
 resource "aws_db_instance" "artifactory_db" {
-  identifier       = "artifactory-db"
+  identifier       = "artifactory-db-${var.env_name}"
   engine           = "postgres"
   engine_version   = var.rds_postgres_version
 
@@ -44,7 +44,7 @@ resource "aws_db_instance" "artifactory_db" {
   skip_final_snapshot    = true
 
   tags = {
-    Group = var.common_tag
+    Group = var.env_name
   }
 }
 
@@ -66,6 +66,6 @@ resource "aws_security_group" "rds_sg" {
   }
 
   tags = {
-    Group = var.common_tag
+    Group = var.env_name
   }
 }

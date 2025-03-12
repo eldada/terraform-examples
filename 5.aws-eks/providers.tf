@@ -1,5 +1,10 @@
 # Define the required providers
 terraform {
+  # Use a local backend
+  backend "local" {
+    path = "./state/terraform.tfstate"
+  }
+
   required_providers {
     # AWS provider
     aws = {

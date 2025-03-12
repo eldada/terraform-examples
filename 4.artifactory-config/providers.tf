@@ -1,5 +1,10 @@
 # Define the required JFrog Artifactory provider
 terraform {
+  # Use a local backend
+  backend "local" {
+    path = "./state/terraform.tfstate"
+  }
+
   required_providers {
     artifactory = {
       source  = "jfrog/artifactory"

@@ -4,6 +4,10 @@ variable "region" {
   default = "eu-central-1"
 }
 
+variable "env_name" {
+  default = "jfrog"
+}
+
 # WARNING: CIDR "0.0.0.0/0" is full public access to the cluster. You should use a more restrictive CIDR
 variable "cluster_public_access_cidrs" {
   default = ["0.0.0.0/0"]
@@ -22,11 +26,11 @@ variable "private_subnet_cidrs" {
 }
 
 variable "rds_postgres_version" {
-  default     = "16.4"
+  default = "16.4"
 }
 
 variable "db_name" {
-  default     = "artifactory"
+  default = "artifactory"
 }
 
 variable "db_username" {
@@ -40,8 +44,8 @@ variable "db_password" {
   default     = "Password321"
 }
 
-variable "env_name" {
-  default = "jfrog"
+variable "kubernetes_version" {
+  default = "1.31"
 }
 
 variable "artifactory_rds_size_default" {

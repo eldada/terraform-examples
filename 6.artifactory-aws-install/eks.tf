@@ -18,7 +18,7 @@ module "eks" {
     source  = "terraform-aws-modules/eks/aws"
 
     cluster_name    = local.cluster_name
-    cluster_version = "1.31"
+    cluster_version = var.kubernetes_version
 
     enable_cluster_creator_admin_permissions = true
     cluster_endpoint_public_access           = true
@@ -62,7 +62,7 @@ module "eks" {
 
     eks_managed_node_groups = {
         artifactory = {
-            name = "artifactory-node-group"
+            name = "${var.env_name}-artifactory"
 
             instance_types = [(
                 var.sizing == "large"   ? var.artifactory_node_size_large :
@@ -112,7 +112,7 @@ module "eks" {
         }
 
         nginx = {
-            name = "nginx-node-group"
+            name = "${var.env_name}-nginx"
 
             instance_types = [(
                 var.sizing == "xlarge"  ? var.nginx_node_size_large :
@@ -137,7 +137,7 @@ module "eks" {
 
         ## Create an extra node group for testing
         extra = {
-            name = "extra-node-group"
+            name = "${var.env_name}-extra"
 
             instance_types = [var.extra_node_size]
 

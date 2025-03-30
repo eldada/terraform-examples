@@ -10,7 +10,7 @@ data "aws_availability_zones" "available" {
 module "vpc" {
     source  = "terraform-aws-modules/vpc/aws"
 
-    name = "jfrog-vpc"
+    name = "${var.env_name}-vpc"
 
     cidr = var.vpc_cidr
     azs  = slice(data.aws_availability_zones.available.names, 0, 3)

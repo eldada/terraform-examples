@@ -14,7 +14,7 @@ data "aws_availability_zones" "available" {
 }
 
 locals {
-    cluster_name = var.cluster_name
+    cluster_name = "${var.env_name}-eks-cluster"
 }
 
 resource "aws_security_group_rule" "allow_management_from_my_ip" {
@@ -30,7 +30,7 @@ resource "aws_security_group_rule" "allow_management_from_my_ip" {
 module "vpc" {
     source  = "terraform-aws-modules/vpc/aws"
 
-    name = "demo-vpc"
+    name = "${var.env_name}-vpc"
 
     cidr = "10.0.0.0/16"
     azs  = slice(data.aws_availability_zones.available.names, 0, 3)
@@ -55,7 +55,7 @@ module "eks" {
     source  = "terraform-aws-modules/eks/aws"
 
     cluster_name    = local.cluster_name
-    cluster_version = "1.31"
+    cluster_version = var.kubernetes_version
 
     enable_cluster_creator_admin_permissions = true
     cluster_endpoint_public_access           = true
@@ -73,6 +73,7 @@ module "eks" {
 
     eks_managed_node_group_defaults = {
         ami_type = "AL2_ARM_64"
+        capacity_type = var.ec2_capacity_type
         iam_role_additional_policies = {
             AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
         }
@@ -85,23 +86,23 @@ module "eks" {
 
     eks_managed_node_groups = {
         one = {
-            name = "node-group-1"
+            name = "${var.env_name}-group-1"
 
-            instance_types = ["t4g.small"]
+            instance_types = [var.pool_1_instance_type]
 
-            min_size     = 1
-            max_size     = var.pool_max_size
-            desired_size = var.pool_desired_size
+            min_size     = 0
+            max_size     = var.pool_1_max_size
+            desired_size = var.pool_1_desired_size
         }
 
         # two = {
-        #     name = "node-group-2"
+        #     name = "${var.env_name}-group-2"
         #
-        #     instance_types = ["t3.small"]
+        #     instance_types = [var.pool_2_instance_type]
         #
-        #     min_size     = 1
-        #     max_size     = 2
-        #     desired_size = 1
+        #     min_size     = 0
+        #     max_size     = var.pool_2_max_size
+        #     desired_size = var.pool_2_desired_size
         # }
     }
 }

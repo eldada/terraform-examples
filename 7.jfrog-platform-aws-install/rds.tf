@@ -1,16 +1,17 @@
 # This file creates the RDS instances for Artifactory and Xray
 
 resource "aws_db_subnet_group" "jfrog_subnet_group" {
-  name       = "jfrog-subnet-group"
+  name       = "${var.env_name}-subnet-group"
   subnet_ids = module.vpc.private_subnets
 
   tags = {
     Group = var.common_tag
+    Env   = var.env_name
   }
 }
 
 resource "aws_db_instance" "artifactory_db" {
-  identifier       = "artifactory-db"
+  identifier       = "artifactory-db-${var.env_name}"
   engine           = "postgres"
   engine_version   = var.rds_postgres_version
 
@@ -45,11 +46,12 @@ resource "aws_db_instance" "artifactory_db" {
 
   tags = {
     Group = var.common_tag
+    Env   = var.env_name
   }
 }
 
 resource "aws_db_instance" "xray_db" {
-  identifier       = "xray-db"
+  identifier       = "xray-db-${var.env_name}"
   engine           = "postgres"
   engine_version   = var.rds_postgres_version
   # Set the instance class based on the sizing variable
@@ -83,6 +85,7 @@ resource "aws_db_instance" "xray_db" {
 
   tags = {
     Group = var.common_tag
+    Env   = var.env_name
   }
 }
 
@@ -105,5 +108,6 @@ resource "aws_security_group" "rds_sg" {
 
   tags = {
     Group = var.common_tag
+    Env   = var.env_name
   }
 }

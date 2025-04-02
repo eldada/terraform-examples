@@ -4,6 +4,10 @@ variable "region" {
   default = "eu-central-1"
 }
 
+variable "env_name" {
+  default = "jfrog-platform"
+}
+
 # WARNING: CIDR "0.0.0.0/0" is full public access to the cluster. You should use a more restrictive CIDR
 variable "cluster_public_access_cidrs" {
   default = ["0.0.0.0/0"]
@@ -22,11 +26,7 @@ variable "private_subnet_cidrs" {
 }
 
 variable "rds_postgres_version" {
-  default     = "16.4"
-}
-
-variable "s3_bucket_name_suffix" {
-  default = "jfrog-demo"
+  default = "16.4"
 }
 
 variable "artifactory_rds_size_default" {
@@ -229,20 +229,13 @@ variable "xray_db_password" {
   default     = "PasswordX321"
 }
 
-variable "cluster_name" {
-  default = "jfrog"
-}
-
-variable "namespace" {
-  default = "jfrog"
-}
-
 variable "jfrog_charts_repository" {
   default = "https://charts.jfrog.io"
 }
 
 variable "jfrog_platform_chart_version" {
-  default = "11.0.1"
+  description = "The jfrog-platform chart version"
+  default = "11.0.5"
 }
 
 variable "deploy_metrics_server" {

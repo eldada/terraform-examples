@@ -145,7 +145,7 @@ variable "jfrog_charts_repository" {
 }
 
 variable "artifactory_chart_version" {
-  default = "107.104.7"
+  default = "107.104.14"
 }
 
 variable "deploy_metrics_server" {

@@ -25,7 +25,6 @@ The sizing templates will be pulled from the [official Helm Charts](https://gith
 
 ## Terraform
 
-
 1. Initialize the Terraform configuration by running the following command
 ```shell
 terraform init

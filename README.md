@@ -20,4 +20,4 @@ To set up Terraform with Artifactory, follow the instructions in the [Terraform 
 7. Create the needed [AWS infrastructure for running JFrog Artifactory and Xray in AWS](7.jfrog-platform-aws-install) using RDS, S3, and EKS. This uses the [JFrog Platform Helm Chart](https://github.com/jfrog/charts/tree/master/stable/jfrog-platform) to install Artifactory and Xray
 
 ## Observability
-For added observability to the provisioned EKS clusters, see the [Observability](./Observability.md) page.
+For adding observability to the provisioned EKS clusters, see the [Observability](./Observability.md) page.

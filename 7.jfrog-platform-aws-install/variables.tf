@@ -25,6 +25,10 @@ variable "private_subnet_cidrs" {
   default = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
 }
 
+variable "kubernetes_version" {
+  default = "1.32"
+}
+
 variable "rds_postgres_version" {
   default = "16.4"
 }
@@ -235,7 +239,7 @@ variable "jfrog_charts_repository" {
 
 variable "jfrog_platform_chart_version" {
   description = "The jfrog-platform chart version"
-  default = "11.0.5"
+  default = "11.1.3"
 }
 
 variable "deploy_metrics_server" {

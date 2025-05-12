@@ -12,7 +12,7 @@ variable "env_name" {
 }
 
 variable "kubernetes_version" {
-  default = "1.31"
+  default = "1.32"
 }
 
 variable "ec2_capacity_type" {

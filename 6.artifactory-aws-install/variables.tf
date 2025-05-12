@@ -45,7 +45,7 @@ variable "db_password" {
 }
 
 variable "kubernetes_version" {
-  default = "1.31"
+  default = "1.32"
 }
 
 variable "artifactory_rds_size_default" {
@@ -145,7 +145,7 @@ variable "jfrog_charts_repository" {
 }
 
 variable "artifactory_chart_version" {
-  default = "107.104.14"
+  default = "107.111.7"
 }
 
 variable "deploy_metrics_server" {

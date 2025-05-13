@@ -57,12 +57,13 @@ module "eks" {
         }
         tags = {
             Group = var.common_tag
+            Env   = var.env_name
         }
     }
 
     eks_managed_node_groups = {
         artifactory = {
-            name = "artifactory-node-group"
+            name = "${var.env_name}-artifactory"
 
             instance_types = [(
                 var.sizing == "large"   ? var.artifactory_node_size_large :
@@ -108,11 +109,12 @@ module "eks" {
             }
             labels = {
                 "group" = "artifactory"
+                "env"   = var.env_name
             }
         }
 
         nginx = {
-            name = "nginx-node-group"
+            name = "${var.env_name}-nginx"
 
             instance_types = [(
                 var.sizing == "xlarge"  ? var.nginx_node_size_large :
@@ -132,11 +134,12 @@ module "eks" {
 
             labels = {
                 "group" = "nginx"
+                "env"   = var.env_name
             }
         }
 
         xray = {
-            name = "xray-node-group"
+            name = "${var.env_name}-xray"
 
             instance_types = [(
                 var.sizing == "xlarge"  ? var.xray_node_size_xlarge :
@@ -181,12 +184,13 @@ module "eks" {
             }
             labels = {
                 "group" = "xray"
+                "env"   = var.env_name
             }
         }
 
         ## Create an extra node group for testing
         extra = {
-            name = "extra-node-group"
+            name = "${var.env_name}-extra"
 
             instance_types = [var.extra_node_size]
 
@@ -196,12 +200,14 @@ module "eks" {
 
             labels = {
                 "group" = "extra"
+                "env"   = var.env_name
             }
         }
     }
 
     tags = {
         Group = var.common_tag
+        Env   = var.env_name
     }
 }
 

@@ -74,7 +74,7 @@ artifactory:
 
   databaseUpgradeReady: true
 
-# Enable Xray
+# Enable Xray and JAS
 xray:
   enabled: true
   unifiedUpgradeAllowed: true
@@ -85,6 +85,11 @@ xray:
   ## Don't use the PostgreSQL chart. Xray will use the RDS instance created by Terraform.
   postgresql:
     enabled: false
+
+  serviceAccount:
+    create: true
+  rbac:
+    create: true
 
   ## Run on nodes marked with the label "group=xray"
   global:
@@ -98,6 +103,10 @@ rabbitmq:
   # Run on nodes marked with the label "group=xray"
   nodeSelector:
     group: "xray"
+
+# Catalog is enabled
+catalog:
+  enabled: true
 
 # Disable other services
 distribution:

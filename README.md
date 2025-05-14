@@ -16,8 +16,8 @@ To set up Terraform with Artifactory, follow the instructions in the [Terraform 
 3. Install [JFrog Artifactory with Helm](3.artifactory-install)
 4. Manage [JFrog Artifactory configuration](4.artifactory-config) with the [Artifactory Provider](https://github.com/jfrog/terraform-provider-artifactory)
 5. Create an [AWS EKS (Kubernetes) cluster](5.aws-eks)
-6. Create the needed [AWS infrastructure for running JFrog Artifactory](6.artifactory-aws-install) using RDS, S3, and EKS. This uses the [Artifactory Helm Chart](https://github.com/jfrog/charts/tree/master/stable/artifactory) to install Artifactory
-7. Create the needed [AWS infrastructure for running JFrog Artifactory and Xray in AWS](7.jfrog-platform-aws-install) using RDS, S3, and EKS. This uses the [JFrog Platform Helm Chart](https://github.com/jfrog/charts/tree/master/stable/jfrog-platform) to install Artifactory and Xray
+6. Create the necessary [AWS infrastructure for running JFrog Artifactory](6.artifactory-aws-install) using RDS, S3, and EKS. This uses the [Artifactory Helm Chart](https://github.com/jfrog/charts/tree/master/stable/artifactory) to install Artifactory
+7. Create the necessary [AWS infrastructure for running the JFrog Platform (Artifactory and Security solutions) in AWS](7.jfrog-platform-aws-install) using RDS, S3, and EKS. This uses the [JFrog Platform Helm Chart](https://github.com/jfrog/charts/tree/master/stable/jfrog-platform)
 
 ## Observability
 For adding observability to the provisioned EKS clusters, see the [Observability](./Observability.md) page.

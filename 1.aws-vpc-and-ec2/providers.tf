@@ -19,6 +19,7 @@ terraform {
     # AWS provider
     aws = {
       source  = "hashicorp/aws"
+      version = "~> 6.0"
     }
   }
 }

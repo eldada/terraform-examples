@@ -11,6 +11,9 @@ resource "helm_release" "artifactory" {
   repository  = "https://charts.jfrog.io"
   chart       = "artifactory"
   version     = var.chart_version
+  upgrade_install = true
+
+  timeout = var.timeout
 
   depends_on = [
     local_file.empty_license

@@ -1,3 +1,7 @@
 variable "chart_version" {
-  default = "107.104.7"
+  default = "107.125.6"
+}
+
+variable "timeout" {
+  default = 600
 }

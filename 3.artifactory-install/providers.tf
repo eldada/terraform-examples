@@ -18,13 +18,14 @@ terraform {
   required_providers {
     helm = {
       source  = "hashicorp/helm"
+      version = "~> 3.1.0"
     }
   }
 }
 
 # Use the local kubectl configuration by helm
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     config_path = "~/.kube/config"
   }
 }

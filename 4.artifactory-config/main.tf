@@ -44,25 +44,23 @@ resource "artifactory_virtual_maven_repository" "maven-virtual" {
     pom_repository_references_cleanup_policy = "discard_active_reference"
 }
 
-# Create the devs group
-resource "artifactory_group" "devs" {
-    name              = "devs"
-    description       = "Developers group"
-    auto_join         = true
-    realm             = "artifactory"
-    realm_attributes  = ""
-    admin_privileges  = false
+# Create the devs and ops groups
+resource "platform_group" "devs" {
+  name             = "devs"
+  description      = "Developers group"
+  external_id      = "Developers group ID"
+  auto_join        = true
+  admin_privileges = false
 }
 
-# Create the ops group
-resource "artifactory_group" "ops" {
-    name              = "ops"
-    description       = "Operations group"
-    auto_join         = true
-    realm             = "artifactory"
-    realm_attributes  = ""
-    admin_privileges  = false
+resource "platform_group" "ops" {
+  name             = "ops"
+  description      = "Operations group"
+  external_id      = "Operations group ID"
+  auto_join        = true
+  admin_privileges = false
 }
+
 
 # Create the user developer1 and add them to the devs group
 resource "artifactory_user" "developer1" {
@@ -70,7 +68,7 @@ resource "artifactory_user" "developer1" {
     email    = "developer1@example.com"
     password = "Password1"
     admin    = false
-    groups   = [artifactory_group.devs.name]
+    groups   = [platform_group.devs.name]
 }
 
 # Create the user developer2 and add them to the devs and ops group
@@ -79,5 +77,5 @@ resource "artifactory_user" "developer2" {
     email    = "developer2@example.com"
     password = "Password2"
     admin    = false
-    groups   = [artifactory_group.devs.name, artifactory_group.ops.name]
+    groups   = [platform_group.devs.name, platform_group.ops.name]
 }

@@ -20,6 +20,7 @@ Fill in the license key as shown in the example.
 **NOTE:** If you plan on skipping the license key(s) for now, you can leave the `artifactory-license.yaml` file empty. Terraform will create an empty one for you if you don't create it.
 
 ## Terraform
+
 1. Initialize the Terraform configuration by running the following command
 ```shell
 terraform init

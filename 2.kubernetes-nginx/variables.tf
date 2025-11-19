@@ -1,5 +1,5 @@
 variable "nginx_version" {
-  default = "1.27.2"
+  default = "latest" # or a specific version like "1.29.3"
 }
 
 variable "nginx_replicas" {

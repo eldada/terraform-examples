@@ -25,6 +25,8 @@ nginx:
 
 ## Configuration values for the PostgreSQL dependency sub-chart
 postgresql:
-  postgresqlPassword: "Password321"
+  auth:
+    password: "Password321"
+
 
 databaseUpgradeReady: true

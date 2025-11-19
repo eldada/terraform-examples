@@ -6,6 +6,10 @@ The work here assumes you have an AWS account and have the AWS CLI installed and
 - The [providers.tf](providers.tf) contains the terraform providers needed for this example.
 - The [main.tf](main.tf) contains the configuration that Terraform will use to create the resources in the cloud.
 
+This example also has a commented out snippet of using Artifactory as the [Terraform backend](https://jfrog.com/help/r/jfrog-artifactory-documentation/terraform-backend-repository).
+
+## Terraform
+
 1. Initialize the Terraform configuration by running the following command
 ```shell
 terraform init

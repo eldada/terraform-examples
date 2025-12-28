@@ -15,6 +15,7 @@ To set up Terraform with Artifactory, follow the instructions in the [Terraform 
 2. Deploy [Nginx in Kubernetes](2.kubernetes-nginx)
 3. Install [JFrog Artifactory with Helm](3.artifactory-install)
 4. Manage [JFrog Artifactory configuration](4.artifactory-config) with the [Artifactory Provider](https://github.com/jfrog/terraform-provider-artifactory)
+5. Create an [AWS EKS Cluster](5.aws-eks) with EC2 or Fargate compute
 
 For an example of spinning up the needed infrastructure to deploy the JFrog Platform in AWS, see the [jfrog-platform-aws-install](https://github.com/jfrog/charts/tree/master/examples/terraform/jfrog-platform-aws-install) example in the official [JFrog Helm Charts repository](https://github.com/jfrog/charts/).
 

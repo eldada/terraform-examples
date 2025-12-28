@@ -44,3 +44,8 @@ output "configure_kubectl" {
   value       = "aws eks update-kubeconfig --region ${var.region} --name ${aws_eks_cluster.eks_cluster.name}"
 }
 
+output "fargate_architecture" {
+  description = "CPU architecture preference for Fargate pods (informational only - architecture is determined by container image)"
+  value       = var.compute_type == "fargate" ? var.fargate_architecture : null
+}
+

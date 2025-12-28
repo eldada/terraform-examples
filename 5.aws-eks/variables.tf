@@ -109,6 +109,17 @@ variable "fargate_namespaces" {
   default     = ["default", "kube-system"]
 }
 
+variable "fargate_architecture" {
+  description = "CPU architecture preference for Fargate pods: 'arm64' (Graviton) or 'amd64' (x86_64). Note: Fargate architecture is determined by your container image architecture, not node selectors. Use this variable for documentation/reference purposes. To use a specific architecture, ensure your container images are built for that architecture (e.g., use multi-arch images or architecture-specific image tags)."
+  type        = string
+  default     = "arm64"
+  
+  validation {
+    condition     = contains(["arm64", "amd64"], var.fargate_architecture)
+    error_message = "fargate_architecture must be either 'arm64' or 'amd64'."
+  }
+}
+
 # EKS API endpoint access configuration
 variable "cluster_endpoint_public_access" {
   description = "Indicates whether or not the Amazon EKS public API server endpoint is enabled"

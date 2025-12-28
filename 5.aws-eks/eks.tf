@@ -158,7 +158,7 @@ resource "aws_iam_role_policy_attachment" "fargate_pod_execution_role_policy" {
   role       = aws_iam_role.fargate_pod_execution[0].name
 }
 
-# Create Fargate Profiles
+# Create Fargate Profiles for general namespaces
 resource "aws_eks_fargate_profile" "main" {
   count                  = var.compute_type == "fargate" ? length(var.fargate_namespaces) : 0
   cluster_name           = aws_eks_cluster.eks_cluster.name
@@ -175,6 +175,69 @@ resource "aws_eks_fargate_profile" "main" {
   ]
 
   tags = var.tags
+}
+
+# Create dedicated Fargate profile for CoreDNS
+# According to AWS documentation, CoreDNS needs a specific profile with label selectors
+# See: https://docs.aws.amazon.com/eks/latest/userguide/fargate-getting-started.html#fargate-gs-coredns
+resource "aws_eks_fargate_profile" "coredns" {
+  count                  = var.compute_type == "fargate" && contains(var.fargate_namespaces, "kube-system") ? 1 : 0
+  cluster_name           = aws_eks_cluster.eks_cluster.name
+  fargate_profile_name   = "coredns"
+  pod_execution_role_arn = aws_iam_role.fargate_pod_execution[0].arn
+  subnet_ids             = aws_subnet.private[*].id
+
+  selector {
+    namespace = "kube-system"
+    labels = {
+      "k8s-app" = "kube-dns"
+    }
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.fargate_pod_execution_role_policy
+  ]
+
+  tags = var.tags
+}
+
+# Trigger CoreDNS rollout restart after Fargate profile is created
+# This ensures CoreDNS pods are rescheduled to run on Fargate
+resource "null_resource" "restart_coredns" {
+  count = var.compute_type == "fargate" && contains(var.fargate_namespaces, "kube-system") ? 1 : 0
+
+  triggers = {
+    fargate_profile_id = aws_eks_fargate_profile.coredns[0].id
+    cluster_name       = aws_eks_cluster.eks_cluster.name
+    region             = var.region
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      # Wait for Fargate profile to be active
+      echo "Waiting for CoreDNS Fargate profile to be active..."
+      aws eks wait fargate-profile-active \
+        --cluster-name ${aws_eks_cluster.eks_cluster.name} \
+        --fargate-profile-name coredns \
+        --region ${var.region} || true
+      
+      # Configure kubectl
+      aws eks update-kubeconfig --region ${var.region} --name ${aws_eks_cluster.eks_cluster.name}
+      
+      # Restart CoreDNS deployment to trigger rescheduling on Fargate
+      echo "Restarting CoreDNS deployment..."
+      kubectl rollout restart -n kube-system deployment coredns || echo "CoreDNS deployment may not exist yet"
+      
+      # Wait for rollout to complete
+      echo "Waiting for CoreDNS rollout to complete..."
+      kubectl rollout status -n kube-system deployment coredns --timeout=300s || true
+    EOT
+  }
+
+  depends_on = [
+    aws_eks_fargate_profile.coredns,
+    aws_eks_cluster.eks_cluster
+  ]
 }
 
 # Add EKS Cluster to AWS Auth ConfigMap (for EC2 nodes)

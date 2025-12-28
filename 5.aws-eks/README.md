@@ -66,6 +66,11 @@ When using `compute_type = "ec2"`:
 
 When using `compute_type = "fargate"`:
 - `fargate_namespaces` - Kubernetes namespaces to run on Fargate (default: `["default", "kube-system"]`)
+- `fargate_architecture` - CPU architecture preference for Fargate pods: `"arm64"` (Graviton) or `"amd64"` (x86_64) (default: `"arm64"`)
+  - **Important**: This is informational/documentation only. Fargate architecture is automatically determined by your container image architecture, NOT by node selectors. 
+  - **For multi-arch images**: Simply use the standard image tag (e.g., `myapp:latest` or `myapp:v1.0.0`). The container runtime automatically selects the correct architecture variant. No special tag needed!
+  - **For architecture-specific images**: Use architecture-specific tags (e.g., `myapp:arm64` or `myapp:amd64`) if you only have single-arch images
+  - **Do NOT use node selectors** like `kubernetes.io/arch` with Fargate - they will cause scheduling failures
 
 ## Usage
 
@@ -190,6 +195,24 @@ terraform destroy
 - No node management required - AWS handles the infrastructure
 - Pods in other namespaces will not run unless you create additional Fargate profiles
 - Fargate profiles are created for each namespace specified in `fargate_namespaces`
+- **CoreDNS Fargate Profile**: A dedicated Fargate profile is automatically created for CoreDNS when `kube-system` is in `fargate_namespaces`. This profile uses label selectors (`k8s-app=kube-dns`) as recommended by AWS documentation
+- **Automatic CoreDNS Rollout**: After the CoreDNS Fargate profile is created and active, Terraform automatically triggers a rollout restart of the CoreDNS deployment to reschedule pods on Fargate
+   - See [Fargate and coredns](https://docs.aws.amazon.com/eks/latest/userguide/fargate-getting-started.html#fargate-gs-coredns) for more details
+- **Fargate Architecture**: The `fargate_architecture` variable documents your architecture preference. **Important**: Fargate architecture is determined by your container image architecture, NOT by node selectors. 
+  
+  **How to use multi-arch images:**
+  - Multi-arch images (Docker manifest lists) automatically work - just use your normal image tag:
+    ```yaml
+    image: myapp:latest        # Works! Runtime selects correct architecture
+    image: myapp:v1.0.0       # Works! Runtime selects correct architecture
+    ```
+  - The container runtime (containerd) automatically pulls the architecture variant that matches Fargate's available architectures
+  - No special tags or configuration needed - the registry and runtime handle it automatically
+  
+  **For single-arch images:**
+  - Use architecture-specific tags: `myapp:arm64` or `myapp:amd64`
+  
+  **Do NOT add node selectors** - Fargate profiles cannot satisfy architecture-based node selectors and pods will fail to schedule
 
 ### Networking
 
@@ -229,6 +252,36 @@ terraform destroy
 - Ensure pods are deployed to namespaces specified in `fargate_namespaces`
 - Check Fargate profile status: `aws eks describe-fargate-profile --cluster-name <name> --fargate-profile-name <profile-name>`
 - Verify pod execution role has correct permissions
+
+### CoreDNS Pods Not Scheduling on Fargate
+
+If CoreDNS pods are not scheduling on Fargate:
+
+1. **Verify the CoreDNS Fargate profile exists and is active:**
+   ```bash
+   aws eks describe-fargate-profile --cluster-name <cluster-name> --fargate-profile-name coredns --region <region>
+   ```
+
+2. **Manually restart the CoreDNS deployment** (if automatic rollout didn't work):
+   ```bash
+   kubectl rollout restart -n kube-system deployment coredns
+   kubectl rollout status -n kube-system deployment coredns
+   ```
+
+3. **Check CoreDNS pod status:**
+   ```bash
+   kubectl get pods -n kube-system -l k8s-app=kube-dns
+   kubectl describe pod -n kube-system -l k8s-app=kube-dns
+   ```
+
+4. **Verify the Fargate profile selectors match CoreDNS:**
+   The CoreDNS Fargate profile should have:
+   - Namespace: `kube-system`
+   - Labels: `k8s-app=kube-dns`
+   
+   This is automatically configured when `kube-system` is in `fargate_namespaces`.
+
+**Note**: Terraform automatically triggers a CoreDNS rollout restart after the Fargate profile is created. If you need to manually trigger it, use the command in step 2.
 
 ### EC2 Nodes Not Joining Cluster
 

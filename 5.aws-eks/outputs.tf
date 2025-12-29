@@ -19,10 +19,10 @@ output "cluster_security_group_id" {
   value       = aws_eks_cluster.eks_cluster.vpc_config[0].cluster_security_group_id
 }
 
-output "cluster_certificate_authority_data" {
-  description = "Base64 encoded certificate data required to communicate with the cluster"
-  value       = aws_eks_cluster.eks_cluster.certificate_authority[0].data
-}
+# output "cluster_certificate_authority_data" {
+#   description = "Base64 encoded certificate data required to communicate with the cluster"
+#   value       = aws_eks_cluster.eks_cluster.certificate_authority[0].data
+# }
 
 output "cluster_name" {
   description = "EKS cluster name"
@@ -46,6 +46,21 @@ output "configure_kubectl" {
 
 output "fargate_architecture" {
   description = "CPU architecture preference for Fargate pods (informational only - architecture is determined by container image)"
-  value       = var.compute_type == "fargate" ? var.fargate_architecture : null
+  value       = var.enable_fargate ? var.fargate_architecture : null
+}
+
+output "ec2_node_labels" {
+  description = "Labels applied to EC2 nodes for pod scheduling"
+  value       = var.enable_ec2 ? var.ec2_node_labels : null
+}
+
+output "ec2_node_taints" {
+  description = "Taints applied to EC2 nodes"
+  value       = var.enable_ec2 ? var.ec2_node_taints : null
+}
+
+output "gp3_storage_class_name" {
+  description = "Name of the gp3 StorageClass (created when EC2 is enabled)"
+  value       = var.enable_ec2 ? kubernetes_storage_class.gp3[0].metadata[0].name : null
 }
 

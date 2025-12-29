@@ -31,19 +31,20 @@ variable "availability_zones" {
   default     = ["eu-central-1a", "eu-central-1b"]
 }
 
-# Compute type
-variable "compute_type" {
-  description = "Type of compute to use for worker nodes: 'ec2' or 'fargate'"
-  type        = string
-  default     = "ec2"
-  
-  validation {
-    condition     = contains(["ec2", "fargate"], var.compute_type)
-    error_message = "compute_type must be either 'ec2' or 'fargate'."
-  }
+# Compute type - you can enable both EC2 and Fargate simultaneously
+variable "enable_ec2" {
+  description = "Enable EC2 node group for the cluster"
+  type        = bool
+  default     = true
 }
 
-# EC2 Node Group configuration (only used when compute_type is "ec2")
+variable "enable_fargate" {
+  description = "Enable Fargate profiles for the cluster"
+  type        = bool
+  default     = false
+}
+
+# EC2 Node Group configuration (only used when enable_ec2 is true)
 variable "node_instance_types" {
   description = "Instance types for the EKS node group"
   type        = list(string)
@@ -102,11 +103,39 @@ variable "node_key_pair" {
   default     = ""
 }
 
-# Fargate Profile configuration (only used when compute_type is "fargate")
+variable "ec2_node_labels" {
+  description = "Labels to apply to EC2 nodes for pod scheduling (nodeSelector/nodeAffinity)"
+  type        = map(string)
+  default = {
+    "node-type" = "ec2"
+  }
+}
+
+variable "ec2_node_taints" {
+  description = "Taints to apply to EC2 nodes (applied via Kubernetes after node creation). Format: list of objects with 'key', 'value' (optional), and 'effect' ('NoSchedule', 'PreferNoSchedule', or 'NoExecute')"
+  type = list(object({
+    key    = string
+    value  = optional(string)
+    effect = string
+  }))
+  default = []
+}
+
+# Fargate Profile configuration (only used when enable_fargate is true)
 variable "fargate_namespaces" {
   description = "List of Kubernetes namespaces for Fargate profile"
   type        = list(string)
+
+  # NOTE: If EC2 is enabled, you don't need to include "kube-system" in this list,
+  # as CoreDNS and other kube-system pods will run on EC2 nodes.
+  # If only Fargate is enabled, include "kube-system" so a dedicated CoreDNS Fargate profile is created (see README for details).
   default     = ["default", "kube-system"]
+}
+
+variable "fargate_pod_labels" {
+  description = "Pod labels that must match for Fargate scheduling. Set to empty map {} (default) to match all pods in Fargate namespaces. Use labels only if you need fine-grained control within a namespace."
+  type        = map(string)
+  default     = {}
 }
 
 variable "fargate_architecture" {

@@ -33,7 +33,9 @@ This example creates:
 
 ### Key Variables
 
-- `compute_type` - Choose between `"ec2"` or `"fargate"` (default: `"ec2"`)
+- `enable_ec2` - Enable EC2 node group (default: `true`)
+- `enable_fargate` - Enable Fargate profiles (default: `false`)
+- **Note**: You can enable both `enable_ec2` and `enable_fargate` simultaneously to have mixed compute types
 - `cluster_name` - Name of the EKS cluster (default: `"example-eks-cluster"`)
 - `region` - AWS region (default: `"eu-central-1"`)
 - `kubernetes_version` - Kubernetes version (default: `"1.34"`)
@@ -48,7 +50,7 @@ This example creates:
 
 ### EC2-Specific Variables
 
-When using `compute_type = "ec2"`:
+When `enable_ec2 = true`:
 - `node_instance_types` - Instance types for nodes (default: `["t4g.small"]` - Graviton/ARM)
 - `node_ami_type` - AMI type for the node group (default: `"AL2023_ARM_64_STANDARD"` for Graviton)
   - For Graviton/ARM instances: `"AL2023_ARM_64_STANDARD"`
@@ -59,13 +61,16 @@ When using `compute_type = "ec2"`:
 - `node_max_size` - Maximum number of nodes (default: `3`)
 - `node_disk_size` - Disk size in GB (default: `20`)
 - `node_key_pair` - EC2 Key Pair for SSH access (optional)
+- `ec2_node_labels` - Labels to apply to EC2 nodes for pod scheduling (default: `{"node-type": "ec2"}`)
+- `ec2_node_taints` - Taints to apply to EC2 nodes to prevent unscheduled pods (default: `[]`)
 
 **Note**: EC2 instances are automatically named with the pattern `${cluster_name}-node` via tags. When using Graviton instances (t4g, m6g, etc.), ensure `node_ami_type` is set to `AL2023_ARM_64_STANDARD`.
 
 ### Fargate-Specific Variables
 
-When using `compute_type = "fargate"`:
-- `fargate_namespaces` - Kubernetes namespaces to run on Fargate (default: `["default", "kube-system"]`)
+When `enable_fargate = true`:
+- `fargate_namespaces` - Kubernetes namespaces where pods will run on Fargate (default: `["default", "kube-system"]`). **This is the primary way to assign workloads to Fargate** - simply deploy pods to namespaces in this list.
+- `fargate_pod_labels` - Optional pod labels for fine-grained Fargate scheduling within a namespace (default: `{}` - matches all pods). Only use if you need to selectively schedule some pods to Fargate within a namespace that also has EC2 workloads.
 - `fargate_architecture` - CPU architecture preference for Fargate pods: `"arm64"` (Graviton) or `"amd64"` (x86_64) (default: `"arm64"`)
   - **Important**: This is informational/documentation only. Fargate architecture is automatically determined by your container image architecture, NOT by node selectors. 
   - **For multi-arch images**: Simply use the standard image tag (e.g., `myapp:latest` or `myapp:v1.0.0`). The container runtime automatically selects the correct architecture variant. No special tag needed!
@@ -83,16 +88,19 @@ terraform init
 ### 2. Plan the Deployment
 
 ```shell
-# Plan with default EC2 compute type
+# Plan with default EC2 only
 terraform plan
 
-# Plan with Fargate compute type
-terraform plan -var 'compute_type=fargate'
+# Plan with Fargate only
+terraform plan -var 'enable_ec2=false' -var 'enable_fargate=true'
+
+# Plan with both EC2 and Fargate (mixed compute)
+terraform plan -var 'enable_ec2=true' -var 'enable_fargate=true'
 
 # Plan with custom variables
 terraform plan \
   -var 'cluster_name=my-eks-cluster' \
-  -var 'compute_type=ec2' \
+  -var 'enable_ec2=true' \
   -var 'node_desired_size=3' \
   -var 'node_max_size=5'
 
@@ -104,16 +112,19 @@ terraform plan \
 ### 3. Apply the Configuration
 
 ```shell
-# Apply with default settings (EC2)
+# Apply with default settings (EC2 only)
 terraform apply
 
-# Apply with Fargate
-terraform apply -var 'compute_type=fargate'
+# Apply with Fargate only
+terraform apply -var 'enable_ec2=false' -var 'enable_fargate=true'
+
+# Apply with both EC2 and Fargate (mixed compute)
+terraform apply -var 'enable_ec2=true' -var 'enable_fargate=true'
 
 # Apply with custom values
 terraform apply \
   -var 'cluster_name=my-eks-cluster' \
-  -var 'compute_type=ec2' \
+  -var 'enable_ec2=true' \
   -var 'node_instance_types=["t4g.medium"]' \
   -var 'node_desired_size=3'
 
@@ -188,6 +199,18 @@ terraform destroy
 - SSH access is optional (set `node_key_pair` variable)
 - Auto-scaling is configured based on `node_min_size`, `node_desired_size`, and `node_max_size`
 - Nodes are managed by AWS EKS and automatically join the cluster
+- **EBS CSI Driver**: The EBS CSI driver addon is automatically installed when EC2 is enabled
+  - Required for dynamic volume provisioning
+  - Uses IAM role for service account (IRSA) for secure access
+- **gp3 StorageClass**: A gp3 StorageClass is automatically created and set as default when EC2 is enabled
+  - Uses EBS CSI driver (`ebs.csi.aws.com`)
+  - Encrypted by default
+  - Supports volume expansion
+  - Volume binding mode: `WaitForFirstConsumer` (volumes are created when pods are scheduled)
+  - **Note**: If your cluster has an existing default storage class (e.g., gp2), you may want to remove its default annotation to avoid conflicts:
+    ```bash
+    kubectl annotate storageclass gp2 storageclass.kubernetes.io/is-default-class- --overwrite
+    ```
 
 ### Fargate Compute Type
 
@@ -195,10 +218,252 @@ terraform destroy
 - No node management required - AWS handles the infrastructure
 - Pods in other namespaces will not run unless you create additional Fargate profiles
 - Fargate profiles are created for each namespace specified in `fargate_namespaces`
-- **CoreDNS Fargate Profile**: A dedicated Fargate profile is automatically created for CoreDNS when `kube-system` is in `fargate_namespaces`. This profile uses label selectors (`k8s-app=kube-dns`) as recommended by AWS documentation
+- **CoreDNS Fargate Profile**: A dedicated Fargate profile is automatically created for CoreDNS when Fargate is enabled, EC2 is disabled, and `kube-system` is in `fargate_namespaces`. This profile uses label selectors (`k8s-app=kube-dns`) as recommended by AWS documentation. **Note**: If both EC2 and Fargate are enabled, this profile is NOT created because CoreDNS will run on EC2 nodes.
 - **Automatic CoreDNS Rollout**: After the CoreDNS Fargate profile is created and active, Terraform automatically triggers a rollout restart of the CoreDNS deployment to reschedule pods on Fargate
+   - **Note**: This restart only occurs when Fargate is enabled AND EC2 is disabled. If EC2 is enabled, CoreDNS will run on EC2 nodes and no restart is needed.
    - See [Fargate and coredns](https://docs.aws.amazon.com/eks/latest/userguide/fargate-getting-started.html#fargate-gs-coredns) for more details
-- **Fargate Architecture**: The `fargate_architecture` variable documents your architecture preference. **Important**: Fargate architecture is determined by your container image architecture, NOT by node selectors. 
+- **Fargate Architecture**: The `fargate_architecture` variable documents your architecture preference. **Important**: Fargate architecture is determined by your container image architecture, NOT by node selectors.
+
+## Assigning Workloads to Node Pools
+
+When you have both EC2 and Fargate enabled, you can control which workloads run on each compute type using Kubernetes scheduling mechanisms.
+
+### Assigning Pods to EC2 Nodes
+
+**Simplest Method: Use Namespaces**
+
+The easiest way to assign pods to EC2 is to deploy them to namespaces **NOT** in `fargate_namespaces`. Pods in non-Fargate namespaces will automatically run on EC2 nodes.
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ec2-workloads
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+  namespace: ec2-workloads  # This namespace is NOT in fargate_namespaces
+spec:
+  template:
+    spec:
+      containers:
+      - name: my-app
+        image: myapp:latest
+```
+
+**Using nodeSelector (Optional)**
+
+If you want explicit control or are deploying to a Fargate namespace, you can use `nodeSelector`. EC2 nodes have labels applied (default: `node-type: ec2`):
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+  namespace: ec2-workloads  # Deploy to non-Fargate namespace
+spec:
+  template:
+    spec:
+      nodeSelector:
+        node-type: ec2  # Matches the default EC2 node label
+      containers:
+      - name: my-app
+        image: myapp:latest
+```
+
+#### Using nodeAffinity (Advanced)
+
+For more complex scheduling rules, use `nodeAffinity`:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  template:
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-type
+                operator: In
+                values:
+                - ec2
+      containers:
+      - name: my-app
+        image: myapp:latest
+```
+
+#### Applying and Handling EC2 Node Taints
+
+Taints are not directly configurable in the Terraform node group resource. To apply taints to EC2 nodes, use kubectl after the nodes are created:
+
+```bash
+# Apply a taint to all EC2 nodes
+kubectl taint nodes -l node-type=ec2 dedicated=workload:NoSchedule
+
+# Or apply to a specific node
+kubectl taint node <node-name> dedicated=workload:NoSchedule
+```
+
+If you have taints on EC2 nodes, you must add matching tolerations to your pods:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  template:
+    spec:
+      nodeSelector:
+        node-type: ec2
+      tolerations:
+      - key: "dedicated"
+        operator: "Equal"
+        value: "workload"
+        effect: "NoSchedule"
+      containers:
+      - name: my-app
+        image: myapp:latest
+```
+
+### Assigning Pods to Fargate
+
+**Simplest Method: Use Namespaces**
+
+The easiest way to assign pods to Fargate is to deploy them to namespaces **in** `fargate_namespaces`. By default, all pods in these namespaces will run on Fargate.
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fargate-apps
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+  namespace: fargate-apps  # This namespace must be in fargate_namespaces
+spec:
+  template:
+    spec:
+      containers:
+      - name: my-app
+        image: myapp:latest
+```
+
+**Note**: Make sure `fargate-apps` is added to the `fargate_namespaces` variable in Terraform, or use an existing namespace like `default` (if it's in `fargate_namespaces`).
+
+**Using Pod Labels (Advanced - Optional)**
+
+If `fargate_pod_labels` is configured (not empty), pods must have matching labels to run on Fargate. This is only needed if you want to selectively schedule some pods to Fargate within a namespace that also has EC2 workloads.
+
+#### Method 2: Use Fargate Profile Label Selectors
+
+If your Fargate profile has label selectors (like the CoreDNS profile), add matching labels to your pods:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+  namespace: kube-system  # Must match Fargate profile namespace
+spec:
+  template:
+    metadata:
+      labels:
+        k8s-app: kube-dns  # Matches Fargate profile label selector
+    spec:
+      containers:
+      - name: my-app
+        image: myapp:latest
+```
+
+**Important**: Do NOT use `nodeSelector` or `nodeAffinity` with Fargate - Fargate profiles cannot satisfy node selectors and pods will fail to schedule.
+
+### Example: Mixed Workloads
+
+Here's an example deploying different workloads to different compute types using namespaces:
+
+```yaml
+# Namespace for EC2 workloads
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ec2-workloads
+---
+# Namespace for Fargate workloads  
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fargate-workloads
+---
+# Workload 1: Runs on EC2 (deployed to EC2 namespace)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: compute-intensive
+  namespace: ec2-workloads  # NOT in fargate_namespaces
+spec:
+  template:
+    spec:
+      containers:
+      - name: app
+        image: compute-app:latest
+        resources:
+          requests:
+            cpu: "2"
+            memory: "4Gi"
+---
+# Workload 2: Runs on Fargate (deployed to Fargate namespace)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+  namespace: fargate-workloads  # Must be in fargate_namespaces
+spec:
+  template:
+    spec:
+      containers:
+      - name: app
+        image: web-app:latest
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "512Mi"
+```
+
+**Remember**: Add `fargate-workloads` to your `fargate_namespaces` variable in Terraform!
+
+### Checking Node Labels
+
+To see what labels are available on your nodes:
+
+```bash
+# List all nodes with their labels
+kubectl get nodes --show-labels
+
+# Get detailed information about a specific node
+kubectl describe node <node-name>
+```
+
+### Terraform Outputs
+
+The Terraform configuration provides outputs to help you reference node labels:
+
+```bash
+# Get EC2 node labels
+terraform output ec2_node_labels
+
+# Get EC2 node taints
+terraform output ec2_node_taints
+``` 
   
   **How to use multi-arch images:**
   - Multi-arch images (Docker manifest lists) automatically work - just use your normal image tag:

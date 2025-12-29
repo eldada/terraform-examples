@@ -11,3 +11,4 @@ terraform.tfstate*
 artifactory-license.yaml
 artifactory-db.yaml
 artifactory-custom.yaml
+temp

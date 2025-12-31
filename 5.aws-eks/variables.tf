@@ -82,7 +82,7 @@ variable "node_desired_size" {
 variable "node_min_size" {
   description = "Minimum number of nodes in the node group"
   type        = number
-  default     = 1
+  default     = 0
 }
 
 variable "node_max_size" {
@@ -166,6 +166,12 @@ variable "cluster_endpoint_public_access_cidrs" {
   description = "List of CIDR blocks which can access the Amazon EKS public API server endpoint. If not specified, defaults to 0.0.0.0/0 (all traffic). Set to empty list [] to restrict all public access."
   type        = list(string)
   default     = ["0.0.0.0/0"]
+}
+
+variable "deploy_metrics_server" {
+  description = "Deploy the metrics server for the EKS cluster"
+  type        = bool
+  default     = true
 }
 
 # Tags

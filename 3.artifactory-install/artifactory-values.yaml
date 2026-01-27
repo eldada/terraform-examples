@@ -10,9 +10,6 @@ artifactory:
     - name : JF_SHARED_NODE_HAENABLED
       value: "true"
 
-  # Fix a know issue. Will be fixed with 7.102.X
-  preStartCommand: "sed -i -e 's, -Xms[^ ]\\+,,g' -e 's, -Xmx[^ ]\\+,,g' /opt/jfrog/artifactory/app/bin/artifactory.default || exit 1"
-
 ## Nginx
 nginx:
   disableProxyBuffering: true
@@ -27,6 +24,5 @@ nginx:
 postgresql:
   auth:
     password: "Password321"
-
 
 databaseUpgradeReady: true

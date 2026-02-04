@@ -15,7 +15,7 @@ variable "cluster_name" {
 variable "kubernetes_version" {
   description = "Kubernetes version for the EKS cluster"
   type        = string
-  default     = "1.34"
+  default     = "1.35"
 }
 
 # VPC configuration
@@ -29,6 +29,30 @@ variable "availability_zones" {
   description = "List of availability zones"
   type        = list(string)
   default     = ["eu-central-1a", "eu-central-1b"]
+}
+
+variable "nat_gateway_mode" {
+  description = <<-EOT
+    NAT Gateway deployment mode:
+    - "single": One NAT Gateway in the first AZ (cost-effective, suitable for dev/test)
+    - "ha": One NAT Gateway per AZ for high availability (recommended for production)
+    
+    Cost implications:
+    - Single: ~$32/month + data processing charges
+    - HA (2 AZs): ~$64/month + data processing charges
+    - HA (3 AZs): ~$96/month + data processing charges
+    
+    Availability implications:
+    - Single: If the AZ with the NAT Gateway fails, private subnet egress in other AZs is unavailable
+    - HA: Each AZ has independent egress; AZ failure only affects that AZ's resources
+  EOT
+  type        = string
+  default     = "single"
+
+  validation {
+    condition     = contains(["single", "ha"], var.nat_gateway_mode)
+    error_message = "nat_gateway_mode must be either 'single' or 'ha'."
+  }
 }
 
 # Compute type - you can enable both EC2 and Fargate simultaneously

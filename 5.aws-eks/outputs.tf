@@ -39,6 +39,16 @@ output "vpc_id" {
   value       = aws_vpc.main.id
 }
 
+output "nat_gateway_mode" {
+  description = "NAT Gateway deployment mode (single or ha)"
+  value       = var.nat_gateway_mode
+}
+
+output "nat_gateway_ips" {
+  description = "Public IP addresses of the NAT Gateway(s)"
+  value       = aws_eip.nat[*].public_ip
+}
+
 output "configure_kubectl" {
   description = "Command to configure kubectl for the EKS cluster"
   value       = "aws eks update-kubeconfig --region ${var.region} --name ${aws_eks_cluster.eks_cluster.name}"

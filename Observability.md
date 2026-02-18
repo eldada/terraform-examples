@@ -1,7 +1,6 @@
 # Observability
 
 ## EKS Monitoring
-Many of the examples here spin up an EKS cluster in AWS.</br>
 An easy way to get an observability stack for the EKS is by using [coroot](https://coroot.com/). The following steps will guide you on how to install **coroot** in EKS.
 
 **NOTE**: The instructions are also available in the [coroot operator install page](https://docs.coroot.com/installation/kubernetes/?edition=ce)

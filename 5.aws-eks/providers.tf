@@ -6,7 +6,7 @@ terraform {
 
   ## Configure the remote backend (Artifactory)
   ## This will store the state file in Artifactory.
-  ## Follow https://jfrog.com/help/r/jfrog-artifactory-documentation/terraform-backend-repository
+  ## Follow https://docs.jfrog.com/artifactory/docs/terraform-opentofu-and-terraform-backend-repositories
   # backend "remote" {
   #   hostname = "eldada.jfrog.io"
   #   organization = "terraform-backend"
